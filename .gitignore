@@ -1,0 +1,6 @@
+# dep
+vendor
+
+# editor
+*.swp
+*.swo

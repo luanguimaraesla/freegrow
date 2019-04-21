@@ -2,11 +2,15 @@ package device
 
 import (
         "sync"
+
+        "github.com/sirupsen/logrus"
 )
 
 var (
         deviceMutex sync.Mutex
         currentDeviceId = 0
+
+        log *logrus.Entry
 )
 
 type Port int
@@ -36,4 +40,16 @@ func (d *device) GetId() int {
 
 func (d *device) GetKind() string {
         return d.kind
+}
+
+func (d *device) getLogger() *logrus.Entry {
+        return log.WithFields(logrus.Fields{
+                "deviceId": d.id,
+                "deviceName": d.name,
+                "deviceKind": d.kind,
+        })
+}
+
+func SetLogger (logger *logrus.Entry) {
+        log = logger
 }

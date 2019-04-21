@@ -30,8 +30,7 @@ func NewDigitalDevice (name string, states DigitalStateMap) *DigitalDevice {
 }
 
 func (d *DigitalDevice) ChangeState (stateName string) error {
-        l := logWithMetadata(d.id, d.name, d.kind)
-
+        l := d.getLogger()
 
         if d.CurrentStateName == stateName {
                 l.Warn(fmt.Sprintf("state (%s) is already the current state"))

@@ -4,3 +4,6 @@ vendor
 # editor
 *.swp
 *.swo
+
+# development environment
+images

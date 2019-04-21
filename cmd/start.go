@@ -15,13 +15,13 @@
 package cmd
 
 import (
-	"fmt"
+        "time"
 
 	"github.com/spf13/cobra"
         "github.com/sirupsen/logrus"
 
         "github.com/luanguimaraesla/freegrow/controller"
-        "github.com/luanguimaraesla/freegrow/system/relay"
+        "github.com/luanguimaraesla/freegrow/gadgets/irrigator"
 )
 
 // startCmd represents the start command
@@ -31,6 +31,8 @@ var startCmd = &cobra.Command{
 	Long: `start freegrow server`,
 	Run: start,
 }
+
+var log *logrus.Entry
 
 func init() {
 	rootCmd.AddCommand(startCmd)
@@ -51,28 +53,30 @@ func init() {
 func start(cmd *cobra.Command, args []string) {
         board, err := cmd.Flags().GetString("board")
         if err != nil {
-                fmt.Printf("error getting board name")
+                log.WithError(err).Fatal("error getting board name")
         }
 
-        logger := logrus.New()
-        log := logger.WithFields(logrus.Fields{
-                "command": "start",
-        })
-
-        log.Info("starting modules")
-
-        log.Info("configuring controller")
-        controller.SetLogger(log)
+        log.Info("starting system")
         controller.StartController(board)
 
-        r, err := relay.NewRelay("hello world", 14) // Test
+        i, err := irrigator.New("main_irrigator", 14, time.Second * 10) // Test
         if err != nil {
-                fmt.Printf("error creating relay device: %v", err)
+                log.WithError(err).Error("failed to create irrigator gadget")
         }
-        r.Activate()
-        r.Deactivate()
-        r.Activate()
-        r.Deactivate()
+        i.Start()
 
         log.Info("Finished")
+}
+
+func getLogger() *logrus.Entry {
+        logger := logrus.New()
+        return logger.WithFields(logrus.Fields{
+                "command": "start",
+        })
+}
+
+func init() {
+        log = getLogger()
+        controller.SetLogger(log)
+        irrigator.SetLogger(log)
 }

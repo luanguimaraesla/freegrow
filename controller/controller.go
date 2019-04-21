@@ -3,38 +3,49 @@ package controller
 import (
         "fmt"
 
+        "github.com/sirupsen/logrus"
+
         "github.com/luanguimaraesla/freegrow/controller/device"
         "github.com/luanguimaraesla/freegrow/controller/raspberry"
 )
 
 type Controller interface {
-        RegisterDigitalDevice(int, *device.State) (int, error)
-        Activate(int) error
-        Deactivate(int) error
+        RegisterDigitalDevice(*device.DigitalDevice) (int, error)
+        ChangeState(int, string) error
+        GetDigitalDeviceState(int) (device.DigitalDeviceState, error)
 }
 
 var (
         boardController Controller
+        log *logrus.Entry
 )
 
+func SetLogger(logger *logrus.Entry){
+        log = logger
+}
+
 func StartController (board string) error {
+        var err error
+        log.Info(fmt.Sprintf("configuring (%s) controller", board))
+
         switch board {
         case "raspberry":
-                boardController = raspberry.NewRaspberry()
-                return nil
+                raspberry.SetLogger(log)
+                boardController, err = raspberry.NewRaspberry()
+                return err
         default:
-                return fmt.Errorf("error configuring new board: %s", board)
+                return fmt.Errorf("board not supported: %s", board)
         }
 }
 
-func RegisterDigitalDevice(port int, state *device.State) (int, error) {
-        return boardController.RegisterDigitalDevice(port, state)
+func RegisterDigitalDevice(d *device.DigitalDevice) (int, error) {
+        return boardController.RegisterDigitalDevice(d)
 }
 
-func Activate(id int) error {
-        return boardController.Activate(id)
+func ChangeState (id int, stateName string) error {
+        return boardController.ChangeState(id, stateName)
 }
 
-func Deactivate(id int) error {
-        return boardController.Deactivate(id)
+func GetDigitalDeviceState(id int) (device.DigitalDeviceState, error) {
+        return boardController.GetDigitalDeviceState(id)
 }

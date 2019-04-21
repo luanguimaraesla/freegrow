@@ -8,30 +8,43 @@ import (
 
 type Relay struct {
         Id int
-        State *device.State
 }
 
 // NewRelay creates a new Relay device
-func NewRelay (port int) (*Relay, error) {
-        state := device.Off
+func NewRelay (name string, port int) (*Relay, error) {
+        d := device.NewDigitalDevice(
+                name,
+                device.DigitalStateMap{
+                        "on": device.DigitalDeviceState{
+                                device.Port(port): device.DigitalStateHigh,
+                        },
+                        "off": device.DigitalDeviceState{
+                                device.Port(port): device.DigitalStateLow,
+                        },
+                },
+        )
 
-        id, err := controller.RegisterDigitalDevice(port, &state)
+        id, err := controller.RegisterDigitalDevice(d)
         if err != nil {
                 return nil, err
         }
 
         return &Relay{
                 Id: id,
-                State: &state,
         }, nil
 }
 
 // Activate function turns the Relay device on
 func (r *Relay) Activate () error {
-        return controller.Activate(r.Id)
+        return controller.ChangeState(r.Id, "on")
 }
 
 // Deactivate function turns the Relay device off
 func (r *Relay) Deactivate () error {
-        return controller.Deactivate(r.Id)
+        return controller.ChangeState(r.Id, "off")
+}
+
+// GetState informs the state of the relay
+func (r *Relay) GetState () (device.DigitalDeviceState, error) {
+        return controller.GetDigitalDeviceState(r.Id)
 }

@@ -7,31 +7,14 @@ import (
 var (
         deviceMutex sync.Mutex
         currentDeviceId = 0
-
-        On = State{"on"}
-        Off = State{"off"}
-        StandBy = State{"standby"}
-        Damaged = State{"damaged"}
 )
 
-type State struct {
-        state string
-}
+type Port int
 
-type Device struct {
-        Id int
-        State *State
-        Kind string
-        Ports map[string]int
-}
-
-func NewDevice(kind string, state *State, ports map[string]int) *Device {
-        return &Device{
-                Id: getNewDeviceId(),
-                Kind: kind,
-                State: state,
-                Ports: ports,
-        }
+type device struct {
+        name string
+        id int
+        kind string
 }
 
 func getNewDeviceId() int {
@@ -41,4 +24,16 @@ func getNewDeviceId() int {
                 deviceMutex.Unlock()
         }()
         return currentDeviceId
+}
+
+func (d *device) GetName() string {
+        return d.name
+}
+
+func (d *device) GetId() int {
+        return d.id
+}
+
+func (d *device) GetKind() string {
+        return d.kind
 }

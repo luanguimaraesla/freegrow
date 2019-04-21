@@ -3,53 +3,84 @@ package raspberry
 import (
         "fmt"
 
+        "github.com/sirupsen/logrus"
+
         "github.com/luanguimaraesla/freegrow/controller/device"
 )
 
+type digitalDevice interface {
+       ChangeState(string) error
+       GetCurrentState() (device.DigitalDeviceState, error)
+       GetKind() string
+       GetName() string
+       GetId()  int
+}
+
 type Raspberry struct {
         model string
-        devices map[int]*device.Device
+        devices map[int]digitalDevice
 }
 
-func NewRaspberry () *Raspberry {
+var (
+        log *logrus.Entry
+        supportedModels = []string{"default"}
+)
+
+func SetLogger(logger *logrus.Entry) {
+        log = logger.WithFields(logrus.Fields{
+                "board": "raspberry",
+        })
+}
+
+
+func NewRaspberry () (*Raspberry, error) {
+        model := "default" // This should be a configuration
+
+        log = log.WithFields(logrus.Fields{
+                "model": model,
+        })
+        device.SetLogger(log)
+
+        if !validateRaspberry(model) {
+                log.Error("unsupported model")
+                return nil, fmt.Errorf("invalid board")
+        }
+
         return &Raspberry{
-                model: "default",
-                devices: make(map[int]*device.Device),
-        }
+                model: model,
+                devices: make(map[int]digitalDevice),
+        }, nil
 }
 
-func (r *Raspberry) RegisterDigitalDevice(port int, state *device.State) (int, error) {
-        ports := map[string]int{
-                "common": port,
+func validateRaspberry(model string) bool {
+        for _, m := range supportedModels {
+                if m == model {
+                        return true
+                }
         }
-        newDevice := device.NewDevice("digital", state, ports)
-        r.devices[newDevice.Id] = newDevice
-
-        return newDevice.Id, nil
+        return false
 }
 
-func (r *Raspberry) Activate (deviceId int) error {
+func (r *Raspberry) RegisterDigitalDevice(d *device.DigitalDevice) (int, error) {
+        r.devices[d.GetId()] = d
+        // [TODO] check ports
+        return d.GetId(), nil
+}
+
+func (r *Raspberry) ChangeState (deviceId int, stateName string) error {
         d := r.devices[deviceId]
 
-        switch kind := d.Kind; kind {
+        switch kind := d.GetKind(); kind {
         case "digital":
                 //[TODO] Do some stuff to activate the device
-                *(d.State) = device.On
+                d.ChangeState(stateName)
+
                 return nil
         default:
-                return fmt.Errorf("unknown device kind (%s)")
+                return fmt.Errorf("unknown device kind (%s)", kind)
         }
 }
 
-func (r *Raspberry) Deactivate (deviceId int) error {
-        d := r.devices[deviceId]
-
-        switch kind := d.Kind; kind {
-        case "digital":
-                //[TODO] Do some stuff to deactivate the device
-                *(d.State) = device.On
-                return nil
-        default:
-                return fmt.Errorf("unknown device kind (%s)")
-        }
+func (r *Raspberry) GetDigitalDeviceState (deviceId int) (device.DigitalDeviceState, error) {
+        return r.devices[deviceId].GetCurrentState()
 }

@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+        "github.com/sirupsen/logrus"
 
         "github.com/luanguimaraesla/freegrow/controller"
         "github.com/luanguimaraesla/freegrow/system/relay"
@@ -53,13 +54,25 @@ func start(cmd *cobra.Command, args []string) {
                 fmt.Printf("error getting board name")
         }
 
+        logger := logrus.New()
+        log := logger.WithFields(logrus.Fields{
+                "command": "start",
+        })
+
+        log.Info("starting modules")
+
+        log.Info("configuring controller")
+        controller.SetLogger(log)
         controller.StartController(board)
 
-        r, err := relay.NewRelay(14) // Test
+        r, err := relay.NewRelay("hello world", 14) // Test
         if err != nil {
                 fmt.Printf("error creating relay device: %v", err)
         }
         r.Activate()
+        r.Deactivate()
+        r.Activate()
+        r.Deactivate()
 
-        fmt.Printf("Finished")
+        log.Info("Finished")
 }

@@ -2,8 +2,11 @@
 package relay
 
 import (
+        "github.com/sirupsen/logrus"
+
+        "github.com/luanguimaraesla/freegrow/system"
         "github.com/luanguimaraesla/freegrow/controller"
-        "github.com/luanguimaraesla/freegrow/controller/device"
+        "github.com/luanguimaraesla/freegrow/device"
 )
 
 type Relay struct {
@@ -36,15 +39,26 @@ func NewRelay (name string, port int) (*Relay, error) {
 
 // Activate function turns the Relay device on
 func (r *Relay) Activate () error {
+        l := r.getLogger()
+        l.Debug("activating relay")
         return controller.ChangeState(r.Id, "on")
 }
 
 // Deactivate function turns the Relay device off
 func (r *Relay) Deactivate () error {
+        l := r.getLogger()
+        l.Debug("deactivating relay")
         return controller.ChangeState(r.Id, "off")
 }
 
 // GetState informs the state of the relay
 func (r *Relay) GetState () (device.DigitalDeviceState, error) {
         return controller.GetDigitalDeviceState(r.Id)
+}
+
+func (r *Relay) getLogger() *logrus.Entry {
+        return system.GetLogger().WithFields(logrus.Fields{
+                "system": "relay",
+                "relayId": r.Id,
+        })
 }

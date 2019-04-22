@@ -21,6 +21,9 @@ import (
         "github.com/sirupsen/logrus"
 
         "github.com/luanguimaraesla/freegrow/controller"
+        "github.com/luanguimaraesla/freegrow/gadgets"
+        "github.com/luanguimaraesla/freegrow/device"
+        "github.com/luanguimaraesla/freegrow/system"
         "github.com/luanguimaraesla/freegrow/gadgets/irrigator"
 )
 
@@ -77,6 +80,8 @@ func getLogger() *logrus.Entry {
 
 func init() {
         log = getLogger()
+        device.SetLogger(log)
         controller.SetLogger(log)
-        irrigator.SetLogger(log)
+        gadgets.SetLogger(log)
+        system.SetLogger(log)
 }

@@ -7,6 +7,7 @@ import (
         "github.com/sirupsen/logrus"
 
         "github.com/luanguimaraesla/freegrow/system/relay"
+        "github.com/luanguimaraesla/freegrow/gadgets"
 )
 
 var (
@@ -60,13 +61,8 @@ func (i *Irrigator) Start () error {
 }
 
 func (i *Irrigator) getLogger() (logger *logrus.Entry) {
-        return log.WithFields(logrus.Fields{
-                "irrigatorName": i.Name,
-        })
-}
-
-func SetLogger(logger *logrus.Entry) {
-        log = logger.WithFields(logrus.Fields{
+        return gadgets.GetLogger().WithFields(logrus.Fields{
                 "gadget": "irrigator",
+                "irrigatorName": i.Name,
         })
 }

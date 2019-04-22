@@ -5,7 +5,7 @@ import (
 
         "github.com/sirupsen/logrus"
 
-        "github.com/luanguimaraesla/freegrow/controller/device"
+        "github.com/luanguimaraesla/freegrow/device"
 )
 
 type digitalDevice interface {
@@ -22,27 +22,26 @@ type Raspberry struct {
 }
 
 var (
-        log *logrus.Entry
         supportedModels = []string{"default"}
+
+        log *logrus.Entry
 )
 
-func SetLogger(logger *logrus.Entry) {
-        log = logger.WithFields(logrus.Fields{
+func (r *Raspberry) getLogger() *logrus.Entry {
+        return log.WithFields(logrus.Fields{
                 "board": "raspberry",
+                "boardModel": r.model,
         })
 }
 
+func SetLogger(logger *logrus.Entry) {
+        log = logger
+}
 
 func NewRaspberry () (*Raspberry, error) {
         model := "default" // This should be a configuration
 
-        log = log.WithFields(logrus.Fields{
-                "model": model,
-        })
-        device.SetLogger(log)
-
         if !validateRaspberry(model) {
-                log.Error("unsupported model")
                 return nil, fmt.Errorf("invalid board")
         }
 
@@ -62,8 +61,16 @@ func validateRaspberry(model string) bool {
 }
 
 func (r *Raspberry) RegisterDigitalDevice(d *device.DigitalDevice) (int, error) {
+        l := r.getLogger()
+        l.Debug(fmt.Sprintf("registering new device: (%d) %s", d.GetId(), d.GetName()))
+
+        if err := r.checkDigitalPorts(d); err != nil {
+                return -1, err
+        }
+
         r.devices[d.GetId()] = d
-        // [TODO] check ports
+        l.Debug(fmt.Sprintf("device registered: (%d) %s", d.GetId(), d.GetName()))
+
         return d.GetId(), nil
 }
 
@@ -83,4 +90,12 @@ func (r *Raspberry) ChangeState (deviceId int, stateName string) error {
 
 func (r *Raspberry) GetDigitalDeviceState (deviceId int) (device.DigitalDeviceState, error) {
         return r.devices[deviceId].GetCurrentState()
+}
+
+func (r *Raspberry) checkDigitalPorts(d *device.DigitalDevice) error {
+        l := r.getLogger()
+        l.Debug(fmt.Sprintf("checking digital ports availability for device: (%d) %s", d.GetId(), d.GetName()))
+        // [TODO] implement port check
+        l.Debug(fmt.Sprintf("all ports are available for device: (%d) %s", d.GetId(), d.GetName()))
+        return nil
 }

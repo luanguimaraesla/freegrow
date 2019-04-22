@@ -5,7 +5,7 @@ import (
 
         "github.com/sirupsen/logrus"
 
-        "github.com/luanguimaraesla/freegrow/controller/device"
+        "github.com/luanguimaraesla/freegrow/device"
         "github.com/luanguimaraesla/freegrow/controller/raspberry"
 )
 
@@ -22,6 +22,11 @@ var (
 
 func SetLogger(logger *logrus.Entry){
         log = logger
+        raspberry.SetLogger(log)
+}
+
+func GetLogger() *logrus.Entry {
+        return log
 }
 
 func StartController (board string) error {

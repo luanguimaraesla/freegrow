@@ -35,10 +35,9 @@ func (d *DigitalDevice) ChangeState (stateName string) error {
         if d.CurrentStateName == stateName {
                 l.Warn(fmt.Sprintf("state (%s) is already the current state"))
                 return nil
-        } else {
-                l.Info(fmt.Sprintf("changing device state from (%s) to (%s)", d.CurrentStateName, stateName))
         }
 
+        l.Debug(fmt.Sprintf("changing device state from (%s) to (%s)", d.CurrentStateName, stateName))
         if _, ok := d.states[stateName]; ok {
                 d.CurrentStateName = stateName
                 return nil

@@ -50,6 +50,6 @@ func (d *device) getLogger() *logrus.Entry {
         })
 }
 
-func SetLogger (logger *logrus.Entry) {
+func SetLogger(logger *logrus.Entry) {
         log = logger
 }

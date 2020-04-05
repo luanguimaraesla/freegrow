@@ -15,24 +15,24 @@
 package cmd
 
 import (
-        "time"
+	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-        "github.com/sirupsen/logrus"
 
-        "github.com/luanguimaraesla/freegrow/controller"
-        "github.com/luanguimaraesla/freegrow/gadgets"
-        "github.com/luanguimaraesla/freegrow/device"
-        "github.com/luanguimaraesla/freegrow/system"
-        "github.com/luanguimaraesla/freegrow/gadgets/irrigator"
+	"github.com/luanguimaraesla/freegrow/internal/controller"
+	"github.com/luanguimaraesla/freegrow/internal/device"
+	"github.com/luanguimaraesla/freegrow/internal/system"
+	"github.com/luanguimaraesla/freegrow/pkg/gadgets"
+	"github.com/luanguimaraesla/freegrow/pkg/gadgets/irrigator"
 )
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "start freegrow server",
-	Long: `start freegrow server`,
-	Run: start,
+	Long:  `start freegrow server`,
+	Run:   start,
 }
 
 var log *logrus.Entry
@@ -40,48 +40,39 @@ var log *logrus.Entry
 func init() {
 	rootCmd.AddCommand(startCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// startCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-        startCmd.Flags().StringP("board", "b", "raspberry", "controller board to use")
+	startCmd.Flags().StringP("board", "b", "raspberry", "controller board to use")
 
 }
 
 func start(cmd *cobra.Command, args []string) {
-        board, err := cmd.Flags().GetString("board")
-        if err != nil {
-                log.WithError(err).Fatal("error getting board name")
-        }
+	board, err := cmd.Flags().GetString("board")
+	if err != nil {
+		log.WithError(err).Fatal("error getting board name")
+	}
 
-        log.Info("starting system")
-        controller.StartController(board)
+	log.Info("starting system")
+	controller.StartController(board)
 
-        i, err := irrigator.New("main_irrigator", 14, time.Second * 10) // Test
-        if err != nil {
-                log.WithError(err).Error("failed to create irrigator gadget")
-        }
-        i.Start()
+	i, err := irrigator.New("main_irrigator", 14, time.Second*10) // Test
+	if err != nil {
+		log.WithError(err).Error("failed to create irrigator gadget")
+	}
+	i.Start()
 
-        log.Info("Finished")
+	log.Info("Finished")
 }
 
 func getLogger() *logrus.Entry {
-        logger := logrus.New()
-        return logger.WithFields(logrus.Fields{
-                "command": "start",
-        })
+	logger := logrus.New()
+	return logger.WithFields(logrus.Fields{
+		"command": "start",
+	})
 }
 
 func init() {
-        log = getLogger()
-        device.SetLogger(log)
-        controller.SetLogger(log)
-        gadgets.SetLogger(log)
-        system.SetLogger(log)
+	log = getLogger()
+	device.SetLogger(log)
+	controller.SetLogger(log)
+	gadgets.SetLogger(log)
+	system.SetLogger(log)
 }

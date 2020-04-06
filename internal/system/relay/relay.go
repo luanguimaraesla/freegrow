@@ -2,63 +2,115 @@
 package relay
 
 import (
-	"github.com/sirupsen/logrus"
+	"fmt"
 
+	"github.com/luanguimaraesla/freegrow/internal/board/board"
+	"github.com/luanguimaraesla/freegrow/internal/board/device"
 	"github.com/luanguimaraesla/freegrow/internal/controller"
-	"github.com/luanguimaraesla/freegrow/internal/device"
-	"github.com/luanguimaraesla/freegrow/internal/system"
+	"go.uber.org/zap"
 )
 
+var logger *zap.Logger
+
 type Relay struct {
-	Id int
+	id     board.DeviceID
+	logger *zap.Logger
+}
+
+func RelayName(port string) string {
+	return fmt.Sprintf("relay_%s", port)
 }
 
 // NewRelay creates a new Relay device
-func NewRelay(name string, port int) (*Relay, error) {
-	d := device.NewDigitalDevice(
-		name,
-		device.DigitalStateMap{
-			"on": device.DigitalDeviceState{
-				device.Port(port): device.DigitalStateHigh,
-			},
-			"off": device.DigitalDeviceState{
-				device.Port(port): device.DigitalStateLow,
-			},
-		},
-	)
-
-	id, err := controller.RegisterDigitalDevice(d)
-	if err != nil {
+func NewRelay(port string) (*Relay, error) {
+	powerOnState := device.NewDigitalDeviceState("on")
+	if err := powerOnState.Ports().Append(
+		device.NewDigitalPort(port, device.DigitalPortStateHigh),
+	); err != nil {
 		return nil, err
 	}
 
+	powerOffState := device.NewDigitalDeviceState("off")
+	if err := powerOffState.Ports().Append(
+		device.NewDigitalPort(port, device.DigitalPortStateLow),
+	); err != nil {
+		return nil, err
+	}
+
+	d := device.NewDigitalDevice(RelayName(port))
+
+	if err := d.States().Append(
+		powerOnState,
+		powerOffState,
+	); err != nil {
+		return nil, err
+	}
+
+	id := controller.Controller.RegisterDigitalDevice(d)
+
 	return &Relay{
-		Id: id,
+		id: id,
 	}, nil
 }
 
 // Activate function turns the Relay device on
 func (r *Relay) Activate() error {
-	l := r.getLogger()
-	l.Debug("activating relay")
-	return controller.ChangeState(r.Id, "on")
+	r.Logger().Debug("activating")
+	dev, err := controller.Controller.DigitalDevice(r.id)
+	if err != nil {
+		return err
+	}
+
+	state, err := dev.States().Get("on")
+	if err != nil {
+		return err
+	}
+
+	state.Activate()
+
+	return nil
 }
 
 // Deactivate function turns the Relay device off
 func (r *Relay) Deactivate() error {
-	l := r.getLogger()
-	l.Debug("deactivating relay")
-	return controller.ChangeState(r.Id, "off")
+	r.Logger().Debug("deactivating")
+	dev, err := controller.Controller.DigitalDevice(r.id)
+	if err != nil {
+		return err
+	}
+
+	state, err := dev.States().Get("off")
+	if err != nil {
+		return err
+	}
+
+	state.Activate()
+
+	return nil
 }
 
-// GetState informs the state of the relay
-func (r *Relay) GetState() (device.DigitalDeviceState, error) {
-	return controller.GetDigitalDeviceState(r.Id)
+func (r *Relay) Logger() *zap.Logger {
+	if r.logger != nil {
+		log := logger.With(
+			zap.String("entity", "relay"),
+			zap.String("id", r.id.String()),
+		)
+
+		r.logger = log
+	}
+
+	return logger
 }
 
-func (r *Relay) getLogger() *logrus.Entry {
-	return system.GetLogger().WithFields(logrus.Fields{
-		"system":  "relay",
-		"relayId": r.Id,
-	})
+func initLogger() {
+	log, err := zap.NewProduction()
+	if err != nil {
+		panic(err)
+	}
+
+	logger = log
+}
+
+func init() {
+	initLogger()
 }

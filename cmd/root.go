@@ -27,9 +27,12 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
+var logger *zap.Logger
 var cfgFile string
+var debugLevel bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -49,11 +52,13 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initLogger)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.freegrow.yaml)")
+	rootCmd.PersistentFlags().BoolVar(&debugLevel, "debug", false, "enable debug level")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -84,4 +89,18 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func initLogger() {
+	conf := zap.NewProductionConfig()
+	if debugLevel {
+		conf.Level.SetLevel(zap.DebugLevel)
+	}
+
+	log, err := conf.Build()
+	if err != nil {
+		panic(err)
+	}
+
+	logger = log
 }

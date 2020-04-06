@@ -1,5 +1,5 @@
 # dep
-vendor
+vendor/
 
 # editor
 *.swp

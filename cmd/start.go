@@ -17,25 +17,21 @@ package cmd
 import (
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 
 	"github.com/luanguimaraesla/freegrow/internal/controller"
-	"github.com/luanguimaraesla/freegrow/internal/device"
-	"github.com/luanguimaraesla/freegrow/internal/system"
-	"github.com/luanguimaraesla/freegrow/pkg/gadgets"
 	"github.com/luanguimaraesla/freegrow/pkg/gadgets/irrigator"
 )
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
-	Use:   "start",
-	Short: "start freegrow server",
-	Long:  `start freegrow server`,
-	Run:   start,
+	Use:              "start",
+	Short:            "start freegrow server",
+	Long:             `start freegrow server`,
+	Run:              start,
+	PersistentPreRun: preStart,
 }
-
-var log *logrus.Entry
 
 func init() {
 	rootCmd.AddCommand(startCmd)
@@ -44,35 +40,26 @@ func init() {
 
 }
 
+func preStart(cmd *cobra.Command, args []string) {
+	logger = logger.With(
+		zap.String("command", "start"),
+	)
+}
+
 func start(cmd *cobra.Command, args []string) {
 	board, err := cmd.Flags().GetString("board")
 	if err != nil {
-		log.WithError(err).Fatal("error getting board name")
+		logger.Fatal("failed to start", zap.Error(err))
 	}
 
-	log.Info("starting system")
-	controller.StartController(board)
+	logger.Info("starting system")
+	controller.DefineController(board)
 
-	i, err := irrigator.New("main_irrigator", 14, time.Second*10) // Test
+	i, err := irrigator.New("main_irrigator", "14", time.Second*10) // Test
 	if err != nil {
-		log.WithError(err).Error("failed to create irrigator gadget")
+		logger.Fatal("failed to gadget", zap.Error(err))
 	}
 	i.Start()
 
-	log.Info("Finished")
-}
-
-func getLogger() *logrus.Entry {
-	logger := logrus.New()
-	return logger.WithFields(logrus.Fields{
-		"command": "start",
-	})
-}
-
-func init() {
-	log = getLogger()
-	device.SetLogger(log)
-	controller.SetLogger(log)
-	gadgets.SetLogger(log)
-	system.SetLogger(log)
+	logger.Info("finished")
 }

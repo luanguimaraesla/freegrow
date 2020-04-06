@@ -1,68 +1,59 @@
 package irrigator
 
 import (
-	"fmt"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
+	"github.com/luanguimaraesla/freegrow/internal/gadget"
 	"github.com/luanguimaraesla/freegrow/internal/system/relay"
-	"github.com/luanguimaraesla/freegrow/pkg/gadgets"
+	"go.uber.org/zap"
 )
 
-var (
-	log *logrus.Entry
-)
-
-type gate interface {
+type Relay interface {
 	Activate() error
 	Deactivate() error
 }
 
-type Irrigator struct {
-	Name          string
-	gate          gate
-	operationTime time.Duration
+type Gadget interface {
+	Logger() *zap.Logger
 }
 
-func New(name string, port int, operationTime time.Duration) (*Irrigator, error) {
-	r, err := relay.NewRelay(fmt.Sprintf("%s_relay_%d", name, port), port)
+type Irrigator struct {
+	Gadget
+	relay         Relay
+	operationTime time.Duration
+	logger        *zap.Logger
+}
+
+func New(name, port string, operationTime time.Duration) (*Irrigator, error) {
+	r, err := relay.NewRelay(port)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Irrigator{
-		Name:          name,
-		gate:          r,
+		Gadget:        gadget.New("irrigator", name),
+		relay:         r,
 		operationTime: operationTime,
 	}, nil
 }
 
 func (i *Irrigator) Start() error {
-	l := i.getLogger()
-	l.Info("starting irrigator")
-	err := i.gate.Activate()
+	i.Logger().Info("starting")
+	err := i.relay.Activate()
 	if err != nil {
-		l.WithError(err).Error("failed activating gate relay")
+		i.Logger().Error("failed activating relay", zap.Error(err))
 		return err
 	}
 
-	l.Debug(fmt.Sprintf("will operate for %v seconds", i.operationTime))
+	i.Logger().Debug("starting operation", zap.Time("until", time.Now().Add(i.operationTime)))
 	time.Sleep(i.operationTime)
 
-	err = i.gate.Deactivate()
+	err = i.relay.Deactivate()
 	if err != nil {
-		l.WithError(err).Error("failed deactivating gate relay")
+		i.Logger().Error("failed deactivating relay", zap.Error(err))
 		return err
 	}
-	l.Info("finishing irrigator")
+	i.Logger().Info("finishing irrigator")
 
 	return nil
-}
-
-func (i *Irrigator) getLogger() (logger *logrus.Entry) {
-	return gadgets.GetLogger().WithFields(logrus.Fields{
-		"gadget":        "irrigator",
-		"irrigatorName": i.Name,
-	})
 }

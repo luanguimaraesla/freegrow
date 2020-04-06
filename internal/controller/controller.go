@@ -3,54 +3,45 @@ package controller
 import (
 	"fmt"
 
-	"github.com/sirupsen/logrus"
-
-	"github.com/luanguimaraesla/freegrow/internal/controller/raspberry"
-	"github.com/luanguimaraesla/freegrow/internal/device"
+	"github.com/luanguimaraesla/freegrow/internal/board/board"
+	"github.com/luanguimaraesla/freegrow/internal/board/raspberry"
+	"go.uber.org/zap"
 )
 
-type Controller interface {
-	RegisterDigitalDevice(*device.DigitalDevice) (int, error)
-	ChangeState(int, string) error
-	GetDigitalDeviceState(int) (device.DigitalDeviceState, error)
+type Board interface {
+	RegisterDigitalDevice(board.DigitalDevice) board.DeviceID
+	DigitalDevice(board.DeviceID) (board.DigitalDevice, error)
 }
 
 var (
-	boardController Controller
-	log             *logrus.Entry
+	Controller Board
+	logger     *zap.Logger
 )
 
-func SetLogger(logger *logrus.Entry) {
-	log = logger
-	raspberry.SetLogger(log)
-}
-
-func GetLogger() *logrus.Entry {
-	return log
-}
-
-func StartController(board string) error {
-	var err error
-	log.Info(fmt.Sprintf("configuring (%s) controller", board))
+func DefineController(board string) error {
+	logger.With(
+		zap.String("board", board),
+	).Info("configuring global board controller")
 
 	switch board {
 	case "raspberry":
-		raspberry.SetLogger(log)
-		boardController, err = raspberry.NewRaspberry()
-		return err
+		Controller = raspberry.New()
 	default:
 		return fmt.Errorf("board not supported: %s", board)
 	}
+
+	return nil
 }
 
-func RegisterDigitalDevice(d *device.DigitalDevice) (int, error) {
-	return boardController.RegisterDigitalDevice(d)
+func initLogger() {
+	log, err := zap.NewProduction()
+	if err != nil {
+		panic(err)
+	}
+
+	logger = log
 }
 
-func ChangeState(id int, stateName string) error {
-	return boardController.ChangeState(id, stateName)
-}
-
-func GetDigitalDeviceState(id int) (device.DigitalDeviceState, error) {
-	return boardController.GetDigitalDeviceState(id)
+func init() {
+	initLogger()
 }

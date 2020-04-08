@@ -21,7 +21,6 @@ type Irrigator struct {
 	Gadget
 	relay         Relay
 	operationTime time.Duration
-	logger        *zap.Logger
 }
 
 func New(name, port string, operationTime time.Duration) (*Irrigator, error) {
@@ -45,7 +44,7 @@ func (i *Irrigator) Start() error {
 		return err
 	}
 
-	i.Logger().Debug("starting operation", zap.Time("until", time.Now().Add(i.operationTime)))
+	i.Logger().Debug("starting operation")
 	time.Sleep(i.operationTime)
 
 	err = i.relay.Deactivate()

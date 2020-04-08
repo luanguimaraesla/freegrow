@@ -2,8 +2,6 @@ package device
 
 import "go.uber.org/zap"
 
-var logger *zap.Logger
-
 type PortID string
 
 type Device struct {
@@ -23,17 +21,4 @@ func (d *Device) Alias() string {
 
 func (pid PortID) String() string {
 	return string(pid)
-}
-
-func initLogger() {
-	log, err := zap.NewProduction()
-	if err != nil {
-		panic(err)
-	}
-
-	logger = log
-}
-
-func init() {
-	initLogger()
 }

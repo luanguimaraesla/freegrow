@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/luanguimaraesla/freegrow/internal/board/board"
+	"github.com/luanguimaraesla/freegrow/internal/global"
 	"go.uber.org/zap"
 )
 
@@ -135,7 +136,7 @@ func (dp *DigitalPort) Activate() {
 
 func (dp *DigitalPort) Logger() *zap.Logger {
 	if dp.logger == nil {
-		log := logger.With(
+		log := global.Logger.With(
 			zap.String("entity", "DigitalPort"),
 			zap.String("id", dp.id.String()),
 			zap.String("state", dp.State.String()),
@@ -148,7 +149,7 @@ func (dp *DigitalPort) Logger() *zap.Logger {
 }
 
 func (ddss *DigitalDeviceStateSet) Logger() *zap.Logger {
-	return logger.With(
+	return global.Logger.With(
 		zap.String("entity", "DigitalDeviceStateSet"),
 	)
 }

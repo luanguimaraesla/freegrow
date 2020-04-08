@@ -7,10 +7,9 @@ import (
 	"github.com/luanguimaraesla/freegrow/internal/board/board"
 	"github.com/luanguimaraesla/freegrow/internal/board/device"
 	"github.com/luanguimaraesla/freegrow/internal/controller"
+	"github.com/luanguimaraesla/freegrow/internal/global"
 	"go.uber.org/zap"
 )
-
-var logger *zap.Logger
 
 type Relay struct {
 	id     board.DeviceID
@@ -90,8 +89,8 @@ func (r *Relay) Deactivate() error {
 }
 
 func (r *Relay) Logger() *zap.Logger {
-	if r.logger != nil {
-		log := logger.With(
+	if r.logger == nil {
+		log := global.Logger.With(
 			zap.String("entity", "relay"),
 			zap.String("id", r.id.String()),
 		)
@@ -99,18 +98,5 @@ func (r *Relay) Logger() *zap.Logger {
 		r.logger = log
 	}
 
-	return logger
-}
-
-func initLogger() {
-	log, err := zap.NewProduction()
-	if err != nil {
-		panic(err)
-	}
-
-	logger = log
-}
-
-func init() {
-	initLogger()
+	return r.logger
 }

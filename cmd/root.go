@@ -21,24 +21,27 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
+	"github.com/luanguimaraesla/freegrow/internal/global"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-var logger *zap.Logger
-var cfgFile string
-var debugLevel bool
+var (
+	logger                       *zap.Logger
+	cfgFile, logLevel, logFormat string
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "freegrow",
-	Short: "freegrow is a opensource tool used to control hand made green houses",
-	Long:  "freegrow is a opensource tool used to control hand made green houses",
+	Short: "freegrow is a opensource tool used to control hand made greenhouses",
+	Long:  "freegrow is a opensource tool used to control hand made greenhouses",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -58,7 +61,8 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.freegrow.yaml)")
-	rootCmd.PersistentFlags().BoolVar(&debugLevel, "debug", false, "enable debug level")
+	rootCmd.PersistentFlags().StringVar(&logLevel, "log", "info", "log level [debug, info, warn, error, panic, fatal]")
+	rootCmd.PersistentFlags().StringVar(&logFormat, "format", "console", "log output format [json, console]")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -92,15 +96,34 @@ func initConfig() {
 }
 
 func initLogger() {
-	conf := zap.NewProductionConfig()
-	if debugLevel {
-		conf.Level.SetLevel(zap.DebugLevel)
-	}
+	rawJSON := []byte(fmt.Sprintf(`{
+          "level": "%s",
+          "encoding": "%s",
+          "outputPaths": ["stdout"],
+          "errorOutputPaths": ["stderr"],
+          "initialFields": {"version": "%s"},
+          "encoderConfig": {
+            "messageKey": "message",
+            "levelKey": "level",
+            "levelEncoder": "lowercase"
+          }
+        }`,
+		logLevel,
+		logFormat,
+		global.Version,
+	))
 
-	log, err := conf.Build()
-	if err != nil {
+	var cfg zap.Config
+	if err := json.Unmarshal(rawJSON, &cfg); err != nil {
 		panic(err)
 	}
 
+	log, err := cfg.Build()
+	if err != nil {
+		panic(err)
+	}
+	defer log.Sync()
+
 	logger = log
+	global.Logger = log
 }

@@ -1,10 +1,9 @@
 package gadget
 
 import (
+	"github.com/luanguimaraesla/freegrow/internal/global"
 	"go.uber.org/zap"
 )
-
-var logger *zap.Logger
 
 type GadgetID string
 
@@ -33,7 +32,7 @@ func New(class, name string) *Gadget {
 
 func (g *Gadget) Logger() *zap.Logger {
 	if g.logger == nil {
-		log := logger.With(
+		log := global.Logger.With(
 			zap.String("name", g.name),
 			zap.String("id", g.id.String()),
 			zap.String("class", g.class),
@@ -43,17 +42,4 @@ func (g *Gadget) Logger() *zap.Logger {
 	}
 
 	return g.logger
-}
-
-func initLogger() {
-	log, err := zap.NewProduction()
-	if err != nil {
-		panic(err)
-	}
-
-	logger = log
-}
-
-func init() {
-	initLogger()
 }

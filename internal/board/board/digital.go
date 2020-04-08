@@ -3,6 +3,7 @@ package board
 import (
 	"fmt"
 
+	"github.com/luanguimaraesla/freegrow/internal/global"
 	"go.uber.org/zap"
 )
 
@@ -63,7 +64,7 @@ func (db *DigitalBoard) DigitalDevice(id DeviceID) (DigitalDevice, error) {
 
 func (db *DigitalBoard) Logger() *zap.Logger {
 	if db.logger == nil {
-		log := logger.With(
+		log := global.Logger.With(
 			zap.String("mode", "digital"),
 		)
 

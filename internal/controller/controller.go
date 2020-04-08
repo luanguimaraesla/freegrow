@@ -5,6 +5,7 @@ import (
 
 	"github.com/luanguimaraesla/freegrow/internal/board/board"
 	"github.com/luanguimaraesla/freegrow/internal/board/raspberry"
+	"github.com/luanguimaraesla/freegrow/internal/global"
 	"go.uber.org/zap"
 )
 
@@ -15,11 +16,10 @@ type Board interface {
 
 var (
 	Controller Board
-	logger     *zap.Logger
 )
 
 func DefineController(board string) error {
-	logger.With(
+	global.Logger.With(
 		zap.String("board", board),
 	).Info("configuring global board controller")
 
@@ -31,17 +31,4 @@ func DefineController(board string) error {
 	}
 
 	return nil
-}
-
-func initLogger() {
-	log, err := zap.NewProduction()
-	if err != nil {
-		panic(err)
-	}
-
-	logger = log
-}
-
-func init() {
-	initLogger()
 }

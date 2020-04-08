@@ -103,3 +103,19 @@ endif
 lint:
 	@echo "  >  Running lint"
 	$(GOLANGCI_LINT) run
+
+###############################################################################
+## Test environment
+###############################################################################
+
+.PHONY: setup
+setup: setup-archlinux
+
+setup-archlinux:
+	@echo "  >  Configuring test environment for archlinux"
+	@sh -c './scripts/environment_archlinux.sh'
+
+.PHONY: emulator
+emulator:
+	@echo "  >  Running Raspberry Pi emulator"
+	@sh -c './scripts/start_archlinux.sh'

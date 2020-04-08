@@ -1,11 +1,8 @@
 package board
 
 import (
+	"github.com/luanguimaraesla/freegrow/internal/global"
 	"go.uber.org/zap"
-)
-
-var (
-	logger *zap.Logger
 )
 
 type DeviceID string
@@ -36,7 +33,7 @@ func (id DeviceID) String() string {
 
 func (b *Board) Logger() *zap.Logger {
 	if b.logger == nil {
-		log := logger.With(
+		log := global.Logger.With(
 			zap.String("board", b.name),
 			zap.String("model", b.model),
 		)
@@ -49,17 +46,4 @@ func (b *Board) Logger() *zap.Logger {
 
 func NewUniqueDeviceID() DeviceID {
 	return DeviceID("12345")
-}
-
-func initLogger() {
-	log, err := zap.NewProduction()
-	if err != nil {
-		panic(err)
-	}
-
-	logger = log
-}
-
-func init() {
-	initLogger()
 }

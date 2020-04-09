@@ -1,6 +1,6 @@
 #! /bin/bash
 
-PROJECT_HOME="$GOPATH/src/github.com/luanguimaraesla/freegrow"
+PROJECT_HOME=$(pwd)
 RPI_KERNEL="$PROJECT_HOME/images/kernel-qemu-4.4.34-jessie"
 RPI_FS="$PROJECT_HOME/images/2017-03-02-raspbian-jessie.img"
 QEMU=$(which qemu-system-arm)

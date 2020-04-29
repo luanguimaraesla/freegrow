@@ -118,4 +118,4 @@ setup-archlinux:
 .PHONY: emulator
 emulator:
 	@echo "  >  Running Raspberry Pi emulator"
-	@sh -c './scripts/start_archlinux.sh'
+	@sh -c 'sudo docker-compose up'

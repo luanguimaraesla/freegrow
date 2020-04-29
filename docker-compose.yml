@@ -1,0 +1,18 @@
+version: '3.7'
+
+services:
+  raspberry:
+    image: luanguimaraesla/rpi:latest
+    build:
+      context: docker/
+    environment:
+      RPI_IMAGE: "/sdcard/2020-02-13-raspbian-buster.img"
+      RPI_KERNEL: "/sdcard/kernel-qemu-4.19.50-buster"
+      RPI_VERSATILE_DTB: "/sdcard/versatile-pb-buster.dtb"
+      RPI_INIT_SSH: "no"
+    ports:
+    - 2222:2222
+    volumes:
+    - ./images/2020-02-13-raspbian-buster.img:/sdcard/2020-02-13-raspbian-buster.img
+    - ./images/kernel-qemu-4.19.50-buster:/sdcard/kernel-qemu-4.19.50-buster
+    - ./images/versatile-pb-buster.dtb:/sdcard/versatile-pb-buster.dtb

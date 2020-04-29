@@ -1,0 +1,29 @@
+#!/usr/bin/expect -f
+
+set image [lindex $argv 0]
+set kernel [lindex $argv 1]
+set dtb [lindex $argv 2]
+set timeout -1
+spawn /usr/local/bin/qemu-system-arm \
+  -M versatilepb \
+  -cpu arm1176 \
+  -m 256M \
+  --net nic \
+  --net user,hostfwd=::2222-:22 \
+  --dtb $dtb \
+  --kernel $kernel \
+  --append "root=/dev/sda2 panic=1 rootfstype=ext4 rw" \
+  --drive "file=$image,index=0,media=disk,format=raw" \
+  --no-reboot \
+  --display none \
+  --serial mon:stdio
+expect "raspberrypi login:"
+send -- "pi\r"
+expect "Password:"
+send -- "raspberry\r"
+expect "pi@raspberrypi:"
+send -- "sudo systemctl enable ssh\r"
+expect "pi@raspberrypi:"
+send -- "sudo systemctl start ssh\r"
+expect "pi@raspberrypi:"
+expect eof

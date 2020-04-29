@@ -1,57 +1,50 @@
 #! /bin/bash
 
+set -euxo pipefail
+
 PROJECT_HOME=$(pwd)
-RPI_KERNEL="$PROJECT_HOME/images/kernel-qemu-4.4.34-jessie"
-RPI_FS="$PROJECT_HOME/images/2017-03-02-raspbian-jessie.img"
-TMP_DIR="$PROJECT_HOME/images/tmp"
+EMULATOR_HOME="$PROJECT_HOME/images"
 
-echo $PROJECT_HOME
-exit 0
-# Download QEMU
-yay -S qemu qemu-arch-extra bridge-utils unzip
+KERNEL_FILE="kernel-qemu-4.19.50-buster"
+DTB_FILE="versatile-pb-buster.dtb"
+RPI_IMAGE_RELEASE="2020-02-13"
+RPI_IMAGE="$RPI_IMAGE_RELEASE-raspbian-buster"
 
-# Add image path
-mkdir -p $PROJECT_HOME/images
+RPI_KERNEL="$EMULATOR_HOME/$KERNEL_FILE"
+RPI_VERSATILE_DTB="$EMULATOR_HOME/$DTB_FILE"
+RPI_FS="$EMULATOR_HOME/$RPI_IMAGE.img"
+
+TMP_DIR="$EMULATOR_HOME/tmp"
+LOCK_FILE="$EMULATOR_HOME/.prepared"
+
 
 # Download QEMU compatible kernel to boot our system
 if [[ ! -f $RPI_KERNEL ]]; then
+  echo "Downloading RPI Kernel"
   curl  \
     -o $RPI_KERNEL \
-    -L https://github.com/dhruvvyas90/qemu-rpi-kernel/raw/master/kernel-qemu-4.4.34-jessie
+    -L https://github.com/dhruvvyas90/qemu-rpi-kernel/raw/master/$KERNEL_FILE
+fi
+
+if [[ ! -f $RPI_VERSATILE_DTB ]]; then
+  echo "Downloading versatile dtb file"
+  curl  \
+    -o $RPI_VERSATILE_DTB \
+    -L https://github.com/dhruvvyas90/qemu-rpi-kernel/raw/master/$DTB_FILE
 fi
 
 # Download Raspbian image
 if [[ ! -f $RPI_FS ]]; then
+  echo "Downloading RPI filesystem"
   curl \
-    -o "$PROJECT_HOME/images/2017-03-02-raspbian-jessie.zip" \
-    -L http://downloads.raspberrypi.org/raspbian/images/raspbian-2017-03-03/2017-03-02-raspbian-jessie.zip
+    -o "$EMULATOR_HOME/$RPI_IMAGE.zip" \
+    -L http://downloads.raspberrypi.org/raspbian/images/raspbian-2020-02-14/$RPI_IMAGE.zip
 
-  cd "$PROJECT_HOME/images/"
-  unzip 2017-03-02-raspbian-jessie.zip
+  cd $EMULATOR_HOME
+  unzip $RPI_IMAGE.zip
 fi
 
-if [[ ! -f $PROJECT_HOME/images/.prepared ]]; then
-  # prepare the image
-  SECTOR1=$( sudo fdisk -l $RPI_FS | grep FAT32 | awk '{ print $2 }' )
-  SECTOR2=$( sudo fdisk -l $RPI_FS | grep Linux | awk '{ print $2 }' )
-  OFFSET1=$(( SECTOR1 * 512 ))
-  OFFSET2=$(( SECTOR2 * 512 ))
-
-  mkdir -p $TMP_DIR
-  sudo mount $RPI_FS -o offset=$OFFSET1 $TMP_DIR
-  sudo touch $TMP_DIR/ssh   # this enables ssh
-  sudo umount $TMP_DIR
-
-  sudo mount $RPI_FS -o offset=$OFFSET2 $TMP_DIR
-cat << EOT | sudo tee -a $TMP_DIR/etc/udev/rules.d/90-qemu.rules
-KERNEL=="sda", SYMLINK+="mmcblk0"
-KERNEL=="sda?", SYMLINK+="mmcblk0p%n"
-KERNEL=="sda2", SYMLINK+="root"
-EOT
-
-  sudo umount -l $TMP_DIR
-  rm -rf $TMP_DIR
-
+if [[ ! -f $LOCK_FILE ]]; then
   qemu-img resize $RPI_FS +10G
   echo "Don't forget to resize the partition inside the VM"
   echo
@@ -70,7 +63,7 @@ EOT
   echo "(12) sudo resize2fs /dev/sda2"
   echo
 
-  touch $PROJECT_HOME/images/.prepared
+    touch $LOCK_FILE
 fi
 
 echo "finished"

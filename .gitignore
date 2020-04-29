@@ -6,7 +6,9 @@ vendor/
 *.swo
 
 # development environment
-images
+images/*.img
+images/*.zip
+images/.prepared
 
 # build folder
 build/

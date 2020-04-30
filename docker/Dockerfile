@@ -37,12 +37,17 @@ COPY --from=qemu-system-arm-builder /qemu/arm-softmmu/qemu-system-arm /usr/local
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && \
-    apt install -y expect && \
+    apt install -y \
+    iproute2 \
+    bridge-utils \
+    kmod \
+    expect && \
     rm -rf /var/lib/apt/lists/*
 
 VOLUME /sdcard
 
 ADD enable_ssh.exp /enable_ssh.exp
+ADD networking.sh /networking.sh
 ADD entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT /entrypoint.sh

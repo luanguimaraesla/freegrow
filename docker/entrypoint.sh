@@ -10,6 +10,9 @@ INIT_SSH=${RPI_INIT_SSH:-"no"}
 
 QEMU="/usr/local/bin/qemu-system-arm"
 
+# setup networking
+/networking.sh
+
 if [[ $RPI_INIT_SSH != "yes" ]]; then
   echo "running directly for IP $IPADDR"
   $QEMU \
@@ -18,6 +21,7 @@ if [[ $RPI_INIT_SSH != "yes" ]]; then
     -m 256M \
     --net nic \
     --net user,hostfwd=::2222-:22 \
+    --net tap,ifname=tap0 \
     --dtb $DTB_FILE \
     --kernel $KERNEL \
     --append "root=/dev/sda2 panic=1 rootfstype=ext4 rw" \

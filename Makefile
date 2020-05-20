@@ -50,12 +50,11 @@ uninstall:
 	@echo "  > Uninstalling ${PROJECT}"
 	$(RM) $(GOPATH)/bin/$(PROJECT)
 
-# TODO(skeleton): Update clean target
 .PHONY: clean
 clean:
 	@echo "  >  Cleaning build cache"
 	@GOBINDIR=$(GOBINDIR) $(GOCLEAN)
-	$(RM) hello coverage.out
+	$(RM) coverage.out
 
 .PHONY: check
 check: test
@@ -103,19 +102,3 @@ endif
 lint:
 	@echo "  >  Running lint"
 	$(GOLANGCI_LINT) run
-
-###############################################################################
-## Test environment
-###############################################################################
-
-.PHONY: setup
-setup: setup-archlinux
-
-setup-archlinux:
-	@echo "  >  Configuring test environment for archlinux"
-	@sh -c './scripts/environment_archlinux.sh'
-
-.PHONY: emulator
-emulator:
-	@echo "  >  Running Raspberry Pi emulator"
-	@sh -c 'sudo docker-compose up'

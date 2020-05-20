@@ -1,7 +1,10 @@
 package raspberry
 
 import (
+	"fmt"
+
 	"github.com/luanguimaraesla/freegrow/internal/board/board"
+	rpio "github.com/stianeikeland/go-rpio/v4"
 	"go.uber.org/zap"
 )
 
@@ -16,11 +19,23 @@ type Raspberry struct {
 	logger *zap.Logger
 }
 
-func New() *Raspberry {
+func New() (*Raspberry, error) {
 	b := board.New("raspberry", "default")
 
-	return &Raspberry{
+	rpi := &Raspberry{
 		Board:  b,
 		logger: b.Logger(),
 	}
+
+	rpi.Logger().Info("openning and mapping memory to access gpio")
+	if err := rpio.Open(); err != nil {
+		return nil, fmt.Errorf("failed initializing gpio")
+	}
+
+	return rpi, nil
+}
+
+// Close unmaps gpio memory
+func (rpi *Raspberry) Close() {
+	rpio.Close()
 }

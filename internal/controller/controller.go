@@ -23,12 +23,13 @@ func DefineController(board string) error {
 		zap.String("board", board),
 	).Info("configuring global board controller")
 
+	var err error = nil
+
 	switch board {
 	case "raspberry":
-		Controller = raspberry.New()
+		Controller, err = raspberry.New()
+		return err
 	default:
 		return fmt.Errorf("board not supported: %s", board)
 	}
-
-	return nil
 }

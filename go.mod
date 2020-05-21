@@ -14,4 +14,6 @@ require (
 	github.com/uber/prototool v1.9.0
 	go.uber.org/zap v1.10.0
 	golang.org/x/tools v0.0.0-20200403190813-44a64ad78b9b
+	gopkg.in/yaml.v3 v3.0.0-20200506231410-2ff61e1afc86
+	gotest.tools v2.2.0+incompatible
 )

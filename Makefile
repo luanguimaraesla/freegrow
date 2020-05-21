@@ -74,7 +74,7 @@ build:
 .PHONY: test
 test:
 	@echo "  >  Executing tests"
-	$(GOTEST) -v -coverprofile=coverage.out ./... $(SILENT_CMD_SUFFIX)
+	$(GOTEST) -v -tags=unit -coverprofile=coverage.out ./... $(SILENT_CMD_SUFFIX)
 
 .PHONY: cover
 cover: cover/text

@@ -2,7 +2,7 @@ package device
 
 import "go.uber.org/zap"
 
-type PortID string
+type PortID uint8
 
 type Device struct {
 	alias  string
@@ -19,6 +19,6 @@ func (d *Device) Alias() string {
 	return d.alias
 }
 
-func (pid PortID) String() string {
-	return string(pid)
+func (pid PortID) Uint8() uint8 {
+	return uint8(pid)
 }

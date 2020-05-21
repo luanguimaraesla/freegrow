@@ -12,6 +12,16 @@ type DigitalBoardInterface interface {
 	DigitalDevice(DeviceID) (DigitalDevice, error)
 }
 
+type PortID interface {
+	Uint8() uint8
+}
+
+type Port interface {
+	Output()
+	High()
+	Low()
+}
+
 type Board struct {
 	DigitalBoardInterface
 	name   string

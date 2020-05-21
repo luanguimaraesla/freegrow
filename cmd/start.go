@@ -55,7 +55,7 @@ func start(cmd *cobra.Command, args []string) {
 	logger.Info("starting system")
 	controller.DefineController(board)
 
-	i, err := irrigator.New("main_irrigator", "14", time.Second*10) // Test
+	i, err := irrigator.New("main_irrigator", 14, time.Second*10) // Test
 	if err != nil {
 		logger.Fatal("failed to gadget", zap.Error(err))
 	}

@@ -23,7 +23,7 @@ type Irrigator struct {
 	operationTime time.Duration
 }
 
-func New(name, port string, operationTime time.Duration) (*Irrigator, error) {
+func New(name string, port uint8, operationTime time.Duration) (*Irrigator, error) {
 	r, err := relay.NewRelay(port)
 	if err != nil {
 		return nil, err

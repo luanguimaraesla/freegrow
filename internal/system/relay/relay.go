@@ -16,12 +16,12 @@ type Relay struct {
 	logger *zap.Logger
 }
 
-func RelayName(port string) string {
-	return fmt.Sprintf("relay_%s", port)
+func RelayName(port uint8) string {
+	return fmt.Sprintf("relay_%d", port)
 }
 
 // NewRelay creates a new Relay device
-func NewRelay(port string) (*Relay, error) {
+func NewRelay(port uint8) (*Relay, error) {
 	powerOnState := device.NewDigitalDeviceState("on")
 	if err := powerOnState.Ports().Append(
 		device.NewDigitalPort(port, device.DigitalPortStateHigh),

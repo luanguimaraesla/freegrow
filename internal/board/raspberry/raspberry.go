@@ -39,3 +39,8 @@ func New() (*Raspberry, error) {
 func (rpi *Raspberry) Close() {
 	rpio.Close()
 }
+
+// Pin returs a pin interface for a specific number
+func (rpi *Raspberry) Pin(port board.PortID) board.Port {
+	return rpio.Pin(port.Uint8())
+}

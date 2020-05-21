@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/luanguimaraesla/freegrow/internal/board/board"
+	"github.com/luanguimaraesla/freegrow/internal/controller"
 	"github.com/luanguimaraesla/freegrow/internal/global"
 	"go.uber.org/zap"
 )
@@ -43,7 +44,7 @@ func (dps digitalPortState) String() string {
 	return string(dps)
 }
 
-func NewDigitalPort(id string, state digitalPortState) *DigitalPort {
+func NewDigitalPort(id uint8, state digitalPortState) *DigitalPort {
 	return &DigitalPort{
 		id:    PortID(id),
 		State: state,
@@ -61,7 +62,7 @@ func (dps *DigitalPortSet) Append(ports ...*DigitalPort) error {
 	for _, port := range ports {
 		for _, registeredPort := range dps.ports {
 			if port.id == registeredPort.id {
-				return fmt.Errorf("port %s is duplicated", port.id.String())
+				return fmt.Errorf("port %d is duplicated", port.id.Uint8())
 			}
 		}
 
@@ -132,13 +133,21 @@ func (dps *DigitalPortSet) Activate() {
 
 func (dp *DigitalPort) Activate() {
 	dp.Logger().Debug("activating")
+
+	pin := controller.Controller.Pin(dp.id)
+	switch dp.State {
+	case DigitalPortStateHigh:
+		pin.High()
+	case DigitalPortStateLow:
+		pin.Low()
+	}
 }
 
 func (dp *DigitalPort) Logger() *zap.Logger {
 	if dp.logger == nil {
 		log := global.Logger.With(
 			zap.String("entity", "DigitalPort"),
-			zap.String("id", dp.id.String()),
+			zap.Uint8("id", dp.id.Uint8()),
 			zap.String("state", dp.State.String()),
 		)
 

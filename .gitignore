@@ -12,3 +12,6 @@ images/.prepared
 
 # build folder
 build/
+
+# coverage
+coverage.out

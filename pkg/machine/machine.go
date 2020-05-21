@@ -1,7 +1,6 @@
 package machine
 
 import (
-	"fmt"
 	"io/ioutil"
 
 	"github.com/luanguimaraesla/freegrow/internal/global"
@@ -9,14 +8,15 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type Gadgets struct {
-	Items []interface{}
+type Gadget struct {
+	Class string     `mapstructure:"class"`
+	Spec  *yaml.Node `mapstructure:"spec"`
 }
 
 type Machine struct {
 	logger  *zap.Logger
-	Board   string   `mapstructure:"board"`
-	Gadgets *Gadgets `mapstructure:"gadgets"`
+	Board   string    `mapstructure:"board"`
+	Gadgets []*Gadget `mapstructure:"gadgets"`
 }
 
 func New() *Machine {
@@ -50,18 +50,6 @@ func (m *Machine) Logger() *zap.Logger {
 	return m.logger
 }
 
-func (g *Gadgets) UnmarshalYAML(value *yaml.Node) error {
-	var temp interface{}
-
-	if err := value.Decode(temp); err != nil {
-		return err
-	}
-
-	fmt.Printf("%v\n", value)
-
-	*g = Gadgets{
-		Items: []interface{}{},
-	}
-
+func (g *Gadget) Run() error {
 	return nil
 }

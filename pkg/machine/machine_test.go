@@ -23,22 +23,30 @@ func TestMain(m *testing.M) {
 func TestGadgetsUnmarshal(t *testing.T) {
 	gadgetsData := []byte(`---
 - class: irrigator
-  name: dafault
-  port: 14
-  states:
-  - name: "on"
-    schedule: "* * */1 * *"
-  - name: "off"
-    schedule: "* * */1 * *"`)
+  spec:
+    name: dafault
+    port: 14
+    states:
+    - name: "on"
+      schedule: "* * */1 * *"
+    - name: "off"
+      schedule: "* * */1 * *"`)
 
-	expectedGadgets := &Gadgets{
-		Items: []interface{}{},
+	expectedGadgets := []*Gadget{
+		&Gadget{
+			Class: "irrigator",
+			Spec:  nil,
+		},
 	}
 
-	gadgets := &Gadgets{}
+	gadgets := []*Gadget{}
 
 	err := yaml.Unmarshal(gadgetsData, &gadgets)
 	assert.NilError(t, err)
+
+	for _, g := range gadgets {
+		g.Spec = nil
+	}
 
 	assert.DeepEqual(t, gadgets, expectedGadgets)
 }

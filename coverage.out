@@ -1,11 +1,1 @@
 mode: set
-github.com/luanguimaraesla/freegrow/pkg/machine/machine.go:21.21,23.2 1 0
-github.com/luanguimaraesla/freegrow/pkg/machine/machine.go:25.43,31.16 3 0
-github.com/luanguimaraesla/freegrow/pkg/machine/machine.go:35.2,35.51 1 0
-github.com/luanguimaraesla/freegrow/pkg/machine/machine.go:39.2,39.12 1 0
-github.com/luanguimaraesla/freegrow/pkg/machine/machine.go:31.16,33.3 1 0
-github.com/luanguimaraesla/freegrow/pkg/machine/machine.go:35.51,37.3 1 0
-github.com/luanguimaraesla/freegrow/pkg/machine/machine.go:42.40,43.21 1 0
-github.com/luanguimaraesla/freegrow/pkg/machine/machine.go:49.2,49.17 1 0
-github.com/luanguimaraesla/freegrow/pkg/machine/machine.go:43.21,47.3 1 0
-github.com/luanguimaraesla/freegrow/pkg/machine/machine.go:54.57,60.2 2 1

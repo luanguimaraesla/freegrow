@@ -1,6 +1,7 @@
 package machine
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	"github.com/luanguimaraesla/freegrow/internal/global"
@@ -49,9 +50,15 @@ func (m *Machine) Logger() *zap.Logger {
 	return m.logger
 }
 
-type A struct{}
-
 func (g *Gadgets) UnmarshalYAML(value *yaml.Node) error {
+	var temp interface{}
+
+	if err := value.Decode(temp); err != nil {
+		return err
+	}
+
+	fmt.Printf("%v\n", value)
+
 	*g = Gadgets{
 		Items: []interface{}{},
 	}

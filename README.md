@@ -40,11 +40,11 @@ freegrow version
 
 ### Running
 
-Freegrow supports some different board configuration. At the moment, we have two different backends `fakeboard` and `raspberry`.
+Freegrow supports some different board configurations. At this moment, we have two different backends `fakeboard` and `raspberry`.
 
 ##### FakeBoard
 
-In order to run development tests and some proof of concepts, we created the FakeBoard controller for running the whole system inside your machine without having to ship the code inside a real board.
+In order to run development tests and some proof of concepts, we created the FakeBoard controller, which mocks GPIO enabling you to run the whole system inside your machine.
 
 ```bash
 # running freegrow outside a board

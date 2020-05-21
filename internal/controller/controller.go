@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/luanguimaraesla/freegrow/internal/board/board"
+	"github.com/luanguimaraesla/freegrow/internal/board/fakeboard"
 	"github.com/luanguimaraesla/freegrow/internal/board/raspberry"
 	"github.com/luanguimaraesla/freegrow/internal/global"
 	"go.uber.org/zap"
@@ -12,6 +13,7 @@ import (
 type Board interface {
 	RegisterDigitalDevice(board.DigitalDevice) board.DeviceID
 	DigitalDevice(board.DeviceID) (board.DigitalDevice, error)
+	Pin(board.PortID) board.Port
 }
 
 var (
@@ -28,6 +30,9 @@ func DefineController(board string) error {
 	switch board {
 	case "raspberry":
 		Controller, err = raspberry.New()
+		return err
+	case "fakeboard":
+		Controller, err = fakeboard.New()
 		return err
 	default:
 		return fmt.Errorf("board not supported: %s", board)

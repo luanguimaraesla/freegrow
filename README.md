@@ -37,3 +37,25 @@ make
 # test if freegrow is working for you
 freegrow version
 ```
+
+### Running
+
+Freegrow supports some different board configuration. At the moment, we have two different backends `fakeboard` and `raspberry`.
+
+##### FakeBoard
+
+In order to run development tests and some proof of concepts, we created the FakeBoard controller for running the whole system inside your machine without having to ship the code inside a real board.
+
+```bash
+# running freegrow outside a board
+freegrow start --board fakeboard --log debug
+```
+
+##### Raspberry Pi 3
+
+We don't have a image docker or something similar to facilitate the deployment of freegrow within your board. In order to ship this code to your raspberry you need to configure golang and install freegrow using make. After doing this, you might run:
+
+```bash
+# running freegrow inside a raspberry
+freegrow start --board raspberry
+```

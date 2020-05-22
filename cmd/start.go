@@ -15,13 +15,10 @@
 package cmd
 
 import (
-	"time"
-
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
 	"github.com/luanguimaraesla/freegrow/internal/controller"
-	"github.com/luanguimaraesla/freegrow/pkg/gadgets/irrigator"
 )
 
 // startCmd represents the start command
@@ -54,12 +51,6 @@ func start(cmd *cobra.Command, args []string) {
 
 	logger.Info("starting system")
 	controller.DefineController(board)
-
-	i, err := irrigator.New("main_irrigator", 14, time.Second*10) // Test
-	if err != nil {
-		logger.Fatal("failed to gadget", zap.Error(err))
-	}
-	i.Start()
 
 	logger.Info("finished")
 }

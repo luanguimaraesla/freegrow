@@ -20,8 +20,8 @@ func RelayName(port uint8) string {
 	return fmt.Sprintf("relay_%d", port)
 }
 
-// NewRelay creates a new Relay device
-func NewRelay(port uint8) (*Relay, error) {
+// New creates a new Relay device
+func New(port uint8) (*Relay, error) {
 	powerOnState := device.NewDigitalDeviceState("on")
 	if err := powerOnState.Ports().Append(
 		device.NewDigitalPort(port, device.DigitalPortStateHigh),

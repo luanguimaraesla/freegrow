@@ -1,10 +1,11 @@
 board: fakeboard
 gadgets:
 - class: irrigator
-  name: dafault
-  port: 14
-  states:
-  - name: "on"
-    schedule: "* * */1 * *"
-  - name: "off"
-    schedule: "* * */1 * *"
+  spec:
+    name: dafault
+    port: 14
+    states:
+    - name: "on"
+      schedule: "* * */1 * *"
+    - name: "off"
+      schedule: "* * */1 * *"

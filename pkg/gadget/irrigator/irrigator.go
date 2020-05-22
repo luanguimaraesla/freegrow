@@ -13,39 +13,39 @@ type Relay interface {
 	Deactivate() error
 }
 
-type Gadget interface {
-	Logger() *zap.Logger
-}
-
 type Irrigator struct {
-	Gadget
-	relay         Relay
-	operationTime time.Duration
+	gadget.Gadget    `yaml:",inline"`
+	gadget.Scheduler `yaml:",inline"`
+	Port             uint8 `yaml:"port"`
+	relay            Relay
 }
 
-func New(name string, port uint8, operationTime time.Duration) (*Irrigator, error) {
-	r, err := relay.NewRelay(port)
+func New() *Irrigator {
+	return &Irrigator{}
+}
+
+func Load(name string, port uint8, operationTime time.Duration) (*Irrigator, error) {
+	return nil, nil
+}
+
+func (i *Irrigator) Init() error {
+	r, err := relay.New(i.Port)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &Irrigator{
-		Gadget:        gadget.New("irrigator", name),
-		relay:         r,
-		operationTime: operationTime,
-	}, nil
+	i.relay = r
+
+	return nil
 }
 
-func (i *Irrigator) Start() error {
+func (i *Irrigator) Run() error {
 	i.Logger().Info("starting")
 	err := i.relay.Activate()
 	if err != nil {
 		i.Logger().Error("failed activating relay", zap.Error(err))
 		return err
 	}
-
-	i.Logger().Debug("starting operation")
-	time.Sleep(i.operationTime)
 
 	err = i.relay.Deactivate()
 	if err != nil {

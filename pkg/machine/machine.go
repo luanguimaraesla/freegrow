@@ -1,22 +1,30 @@
 package machine
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	"github.com/luanguimaraesla/freegrow/internal/global"
+	"github.com/luanguimaraesla/freegrow/pkg/gadget/irrigator"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 )
 
-type Gadget struct {
-	Class string     `mapstructure:"class"`
-	Spec  *yaml.Node `mapstructure:"spec"`
+type Gadget interface {
+	Run() error
+}
+
+type Runner struct {
+	logger *zap.Logger
+	Class  string     `mapstructure:"class"`
+	Spec   *yaml.Node `mapstructure:"spec"`
+	Gadget Gadget
 }
 
 type Machine struct {
 	logger  *zap.Logger
 	Board   string    `mapstructure:"board"`
-	Gadgets []*Gadget `mapstructure:"gadgets"`
+	Runners []*Runner `mapstructure:"gadgets"`
 }
 
 func New() *Machine {
@@ -50,6 +58,32 @@ func (m *Machine) Logger() *zap.Logger {
 	return m.logger
 }
 
-func (g *Gadget) Run() error {
+func (r *Runner) Run() error {
+	switch class := r.Class; class {
+	case "irrigator":
+		gadget := irrigator.New()
+
+		if err := r.Spec.Decode(&gadget); err != nil {
+			return err
+		}
+
+		r.Gadget = gadget
+	default:
+		return fmt.Errorf("no runner found for class %s", class)
+	}
+
+	r.Logger().Info("running gadget")
+	r.Gadget.Run()
+
 	return nil
+}
+
+func (r *Runner) Logger() *zap.Logger {
+	if r.logger == nil {
+		r.logger = global.Logger.With(
+			zap.String("entity", "runner"),
+		)
+	}
+
+	return r.logger
 }

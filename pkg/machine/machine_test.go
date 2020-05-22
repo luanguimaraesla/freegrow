@@ -6,9 +6,6 @@ import (
 	"testing"
 
 	tt "github.com/luanguimaraesla/freegrow/test"
-
-	"gopkg.in/yaml.v3"
-	"gotest.tools/assert"
 )
 
 func TestMain(m *testing.M) {
@@ -20,33 +17,33 @@ func TestMain(m *testing.M) {
 	setup(m)
 }
 
-func TestGadgetsUnmarshal(t *testing.T) {
-	gadgetsData := []byte(`---
-- class: irrigator
-  spec:
-    name: dafault
-    port: 14
-    states:
-    - name: "on"
-      schedule: "* * */1 * *"
-    - name: "off"
-      schedule: "* * */1 * *"`)
-
-	expectedGadgets := []*Gadget{
-		&Gadget{
-			Class: "irrigator",
-			Spec:  nil,
-		},
-	}
-
-	gadgets := []*Gadget{}
-
-	err := yaml.Unmarshal(gadgetsData, &gadgets)
-	assert.NilError(t, err)
-
-	for _, g := range gadgets {
-		g.Spec = nil
-	}
-
-	assert.DeepEqual(t, gadgets, expectedGadgets)
-}
+//func TestGadgetsUnmarshal(t *testing.T) {
+//	gadgetsData := []byte(`---
+//- class: irrigator
+//  spec:
+//    name: dafault
+//    port: 14
+//    states:
+//    - name: "on"
+//      schedule: "* * */1 * *"
+//    - name: "off"
+//      schedule: "* * */1 * *"`)
+//
+//	expectedGadgets := []*Gadget{
+//		&Gadget{
+//			Class: "irrigator",
+//			Spec:  nil,
+//		},
+//	}
+//
+//	gadgets := []*Gadget{}
+//
+//	err := yaml.Unmarshal(gadgetsData, &gadgets)
+//	assert.NilError(t, err)
+//
+//	for _, g := range gadgets {
+//		g.Spec = nil
+//	}
+//
+//	assert.DeepEqual(t, gadgets, expectedGadgets)
+//}

@@ -47,7 +47,7 @@ board: fakeboard
 gadgets:
 - class: irrigator
   spec:
-    name: dafault
+    name: default
     port: 14
     states:
     - name: "on"

@@ -53,7 +53,7 @@ gadgets:
     - name: "on"
       schedule: "5 9 * * *"     # starts at 9:05AM
     - name: "off"
-      schedule: "10 9 * * *"    # finishes as 9:10AM
+      schedule: "10 9 * * *"    # finishes at 9:10AM
 ```
 
 Freegrow supports some different board configurations. At this moment, we have two different backends `fakeboard` and `raspberry`.

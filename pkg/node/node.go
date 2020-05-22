@@ -15,12 +15,6 @@ type Meta struct {
 	Tags Tags   `yaml:"tags"`
 }
 
-type nodePhase string
-
-type NodeStatus struct {
-	Phase nodePhase
-}
-
 type Node struct {
 	Meta   `yaml:"metadata,inline"`
 	Spec   *NodeSpec `yaml:"spec"`
@@ -28,20 +22,10 @@ type Node struct {
 	logger *zap.Logger
 }
 
-type nodeBoard string
-
 type NodeSpec struct {
 	Board   nodeBoard `yaml:"board"`
 	Machine *Machine  `yaml:"machine"`
 }
-
-const (
-	RaspberryBoard nodeBoard = "raspberry"
-	FakeboardBoard nodeBoard = "fakeboard"
-
-	NodePhaseRunning nodePhase = "running"
-	NodePhaseStopped nodePhase = "stopped"
-)
 
 func New() *Node {
 	return &Node{}

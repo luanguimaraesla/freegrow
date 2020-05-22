@@ -18,8 +18,8 @@ type Gadget interface {
 
 type Runner struct {
 	logger *zap.Logger
-	Class  string     `yaml:"class"`
-	Spec   *yaml.Node `yaml:"spec"`
+	Class  string    `yaml:"class"`
+	Spec   yaml.Node `yaml:"spec"`
 	Gadget Gadget
 }
 
@@ -51,10 +51,12 @@ func (m *Machine) Load(path string) error {
 }
 
 func (m *Machine) Init() error {
+	m.Logger().Info("defining controller")
 	if err := controller.DefineController(m.Board); err != nil {
 		return err
 	}
 
+	m.Logger().Info("initializing runners")
 	for _, r := range m.Runners {
 		if err := r.Init(); err != nil {
 			return err
@@ -85,11 +87,18 @@ func (m *Machine) Logger() *zap.Logger {
 }
 
 func (r *Runner) Init() error {
+	l := r.Logger().With(
+		zap.String("class", r.Class),
+	)
+
+	l.Info("initializing a new runner")
+
 	switch class := r.Class; class {
 	case "irrigator":
 		gadget := irrigator.New()
 
-		if err := r.Spec.Decode(&gadget); err != nil {
+		l.Debug("decoding")
+		if err := r.Spec.Decode(gadget); err != nil {
 			return err
 		}
 
@@ -98,7 +107,7 @@ func (r *Runner) Init() error {
 		return fmt.Errorf("no runner found for class %s", class)
 	}
 
-	r.Logger().Info("running gadget")
+	l.Info("running gadget")
 	if err := r.Gadget.Init(); err != nil {
 		return err
 	}

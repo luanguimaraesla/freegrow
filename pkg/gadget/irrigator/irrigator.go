@@ -29,6 +29,7 @@ func Load(name string, port uint8, operationTime time.Duration) (*Irrigator, err
 }
 
 func (i *Irrigator) Init() error {
+	i.Logger().Debug("initializing relay")
 	r, err := relay.New(i.Port)
 	if err != nil {
 		return err

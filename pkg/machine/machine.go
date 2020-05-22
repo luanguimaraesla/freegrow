@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/luanguimaraesla/freegrow/internal/controller"
 	"github.com/luanguimaraesla/freegrow/internal/global"
 	"github.com/luanguimaraesla/freegrow/pkg/gadget/irrigator"
 	"go.uber.org/zap"
@@ -11,20 +12,21 @@ import (
 )
 
 type Gadget interface {
+	Init() error
 	Run() error
 }
 
 type Runner struct {
 	logger *zap.Logger
-	Class  string     `mapstructure:"class"`
-	Spec   *yaml.Node `mapstructure:"spec"`
+	Class  string     `yaml:"class"`
+	Spec   *yaml.Node `yaml:"spec"`
 	Gadget Gadget
 }
 
 type Machine struct {
 	logger  *zap.Logger
-	Board   string    `mapstructure:"board"`
-	Runners []*Runner `mapstructure:"gadgets"`
+	Board   string    `yaml:"board"`
+	Runners []*Runner `yaml:"gadgets"`
 }
 
 func New() *Machine {
@@ -48,6 +50,30 @@ func (m *Machine) Load(path string) error {
 	return nil
 }
 
+func (m *Machine) Init() error {
+	if err := controller.DefineController(m.Board); err != nil {
+		return err
+	}
+
+	for _, r := range m.Runners {
+		if err := r.Init(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Machine) Run() error {
+	for _, r := range m.Runners {
+		if err := r.Run(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *Machine) Logger() *zap.Logger {
 	if m.logger == nil {
 		m.logger = global.Logger.With(
@@ -58,7 +84,7 @@ func (m *Machine) Logger() *zap.Logger {
 	return m.logger
 }
 
-func (r *Runner) Run() error {
+func (r *Runner) Init() error {
 	switch class := r.Class; class {
 	case "irrigator":
 		gadget := irrigator.New()
@@ -73,7 +99,21 @@ func (r *Runner) Run() error {
 	}
 
 	r.Logger().Info("running gadget")
-	r.Gadget.Run()
+	if err := r.Gadget.Init(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Runner) Run() error {
+	if r.Gadget == nil {
+		return fmt.Errorf("gadget was not initialized")
+	}
+
+	if err := r.Gadget.Run(); err != nil {
+		return err
+	}
 
 	return nil
 }

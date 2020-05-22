@@ -17,8 +17,6 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-
-	"github.com/luanguimaraesla/freegrow/internal/controller"
 )
 
 // startCmd represents the start command
@@ -44,13 +42,7 @@ func preStart(cmd *cobra.Command, args []string) {
 }
 
 func start(cmd *cobra.Command, args []string) {
-	board, err := cmd.Flags().GetString("board")
-	if err != nil {
-		logger.Fatal("failed to start", zap.Error(err))
-	}
-
 	logger.Info("starting system")
-	controller.DefineController(board)
 
 	logger.Info("finished")
 }

@@ -6,5 +6,6 @@ type State struct {
 }
 
 type Scheduler struct {
+	Board  string   `yaml:"name"`
 	States []*State `yaml:"states"`
 }

@@ -1,0 +1,9 @@
+metadata:
+  name: "default"
+  tags:
+    runner: local
+spec:
+  bind: "0.0.0.0:3000"
+  etcd:
+    endpoints:
+    - "http://localhost:2379"

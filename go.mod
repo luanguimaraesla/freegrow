@@ -6,6 +6,7 @@ require (
 	github.com/golang/protobuf v1.3.5
 	github.com/golangci/golangci-lint v1.24.0
 	github.com/google/go-cmp v0.2.0
+	github.com/gorilla/mux v1.7.4
 	github.com/grpc-ecosystem/grpc-gateway v1.14.3
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/sirupsen/logrus v1.5.0 // indirect

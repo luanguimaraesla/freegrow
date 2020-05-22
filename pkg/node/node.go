@@ -4,22 +4,16 @@ import (
 	"io/ioutil"
 
 	"github.com/luanguimaraesla/freegrow/internal/global"
+	"github.com/luanguimaraesla/freegrow/internal/resource"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 )
 
-type Tags map[string]string
-
-type Meta struct {
-	Name string `yaml:"name"`
-	Tags Tags   `yaml:"tags"`
-}
-
 type Node struct {
-	Meta   `yaml:"metadata,inline"`
-	Spec   *NodeSpec `yaml:"spec"`
-	Status *NodeStatus
-	logger *zap.Logger
+	resource.Meta `yaml:"metadata,inline"`
+	Spec          *NodeSpec `yaml:"spec"`
+	Status        *NodeStatus
+	logger        *zap.Logger
 }
 
 type NodeSpec struct {

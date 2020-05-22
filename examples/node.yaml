@@ -1,0 +1,10 @@
+metadata:
+  name: "default"
+  tags:
+    plant: "tomatoe"
+    greenhouseVersion: "v0.0.1"
+spec:
+  board: fakeboard
+  machine:
+    host: localhost
+    port: 3000

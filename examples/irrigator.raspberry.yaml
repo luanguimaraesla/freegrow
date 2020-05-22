@@ -1,0 +1,11 @@
+board: raspberry
+gadgets:
+- class: irrigator
+  spec:
+    name: dafault
+    port: 14
+    states:
+    - name: "on"
+      schedule: "5 9 * * *"
+    - name: "off"
+      schedule: "10 9 * * *"

@@ -40,6 +40,22 @@ freegrow version
 
 ### Running
 
+Freegrow needs a simple manifest to configure its internal resources. We call these resources `Gadgets`, for which we have to define some custom settings in order to specify their behavior. Irrigator is an example of a Gadget, we can control the time it should start and stop using a simple crontab notation. Also we need to define the board digital port where it is connected.
+
+```yaml
+board: fakeboard
+gadgets:
+- class: irrigator
+  spec:
+    name: dafault
+    port: 14
+    states:
+    - name: "on"
+      schedule: "5 9 * * *"     # starts at 9:05AM
+    - name: "off"
+      schedule: "10 9 * * *"    # finishes as 9:10AM
+```
+
 Freegrow supports some different board configurations. At this moment, we have two different backends `fakeboard` and `raspberry`.
 
 ##### FakeBoard
@@ -48,14 +64,14 @@ In order to run development tests and some proof of concepts, we created the Fak
 
 ```bash
 # running freegrow outside a board
-freegrow start --board fakeboard --log debug
+freegrow start -f examples/irrigator.fakeboard.yaml --log debug
 ```
 
 ##### Raspberry Pi 3
 
-We don't have a image docker or something similar to facilitate the deployment of freegrow within your board. In order to ship this code to your raspberry you need to configure golang and install freegrow using make. After doing this, you might run:
+Connect your Irrigator device to the raspberry digital pin 14 and run the following command:
 
 ```bash
 # running freegrow inside a raspberry
-freegrow start --board raspberry
+freegrow start -f examples/irrigator.raspberry.yaml --log debug
 ```

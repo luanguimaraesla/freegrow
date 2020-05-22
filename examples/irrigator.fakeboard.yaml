@@ -6,6 +6,6 @@ gadgets:
     port: 14
     states:
     - name: "on"
-      schedule: "* * */1 * *"
+      schedule: "5 9 * * *"
     - name: "off"
-      schedule: "* * */1 * *"
+      schedule: "10 9 * * *"

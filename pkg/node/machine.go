@@ -7,11 +7,15 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/luanguimaraesla/freegrow/internal/global"
+	"go.uber.org/zap"
 )
 
 type Machine struct {
-	Host string `yaml:"url"`
-	Port int    `yaml:"port"`
+	Host   string `yaml:"host" json:"host"`
+	Port   int    `yaml:"port" json:"port"`
+	logger *zap.Logger
 }
 
 func (m *Machine) Register(node *Node) error {
@@ -20,14 +24,9 @@ func (m *Machine) Register(node *Node) error {
 		return err
 	}
 
-	url := m.url("nodes/register")
-	buf := bytes.NewBuffer(body)
+	fmt.Println(string(body))
 
-	req, err := http.NewRequest("POST", url, buf)
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := m.post("nodes", body)
 	if err != nil {
 		return err
 	}
@@ -35,11 +34,35 @@ func (m *Machine) Register(node *Node) error {
 
 	if resp.StatusCode != http.StatusCreated &&
 		resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("error registering node: %s", string(body))
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+
+		return fmt.Errorf("error registering node: %d %s", resp.StatusCode, body)
 	}
 
 	return nil
+}
+
+func (m *Machine) post(path string, body []byte) (*http.Response, error) {
+	url := m.url(path)
+	buf := bytes.NewBuffer(body)
+
+	req, err := http.NewRequest("POST", url, buf)
+	req.Header.Set("Content-Type", "application/json")
+
+	m.Logger().With(
+		zap.String("url", url),
+	).Debug("posting to machine API")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (m *Machine) url(path string) string {
@@ -50,4 +73,16 @@ func (m *Machine) url(path string) string {
 	}
 
 	return u.String()
+}
+
+func (m *Machine) Logger() *zap.Logger {
+	if m.logger == nil {
+		m.logger = global.Logger.With(
+			zap.String("entity", "machine"),
+			zap.String("host", m.Host),
+			zap.Int("entity", m.Port),
+		)
+	}
+
+	return m.logger
 }

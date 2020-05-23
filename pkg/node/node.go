@@ -10,10 +10,10 @@ import (
 )
 
 type Node struct {
-	resource.Meta `yaml:"metadata,inline"`
-	Spec          *NodeSpec `yaml:"spec"`
-	Status        *NodeStatus
-	logger        *zap.Logger
+	Metadata *resource.Metadata `yaml:"metadata" json:"metadata"`
+	Spec     *NodeSpec          `yaml:"spec" json:"spec"`
+	Status   *NodeStatus        `yaml:"status,omitempty" json:"status,omitempty"`
+	logger   *zap.Logger
 }
 
 type NodeSpec struct {
@@ -59,7 +59,7 @@ func (n *Node) Logger() *zap.Logger {
 	if n.logger == nil {
 		n.logger = global.Logger.With(
 			zap.String("entity", "node"),
-			zap.String("name", n.Name),
+			zap.String("name", n.Metadata.Name),
 		)
 	}
 

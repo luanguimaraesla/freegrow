@@ -2,7 +2,7 @@ package resource
 
 type Tags map[string]string
 
-type Meta struct {
+type Metadata struct {
 	Name string `yaml:"name"`
 	Tags Tags   `yaml:"tags"`
 }

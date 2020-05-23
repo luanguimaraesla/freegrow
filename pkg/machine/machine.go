@@ -1,22 +1,25 @@
 package machine
 
 import (
+	"context"
 	"io/ioutil"
 
 	"github.com/luanguimaraesla/freegrow/internal/global"
 	"github.com/luanguimaraesla/freegrow/internal/resource"
+	"github.com/luanguimaraesla/freegrow/pkg/async"
+	"github.com/luanguimaraesla/freegrow/pkg/node"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 )
 
-type Etcd struct {
-	Endpoints []string `yaml:"endpoints"`
+type Node interface {
+	Put(context.Context, *node.Node) error
 }
 
 type Machine struct {
-	resource.Meta `yaml:"metadata,inline"`
-	Spec          *MachineSpec `yaml:"spec"`
-	logger        *zap.Logger
+	Metadata *resource.Metadata `yaml:"metadata"`
+	Spec     *MachineSpec       `yaml:"spec"`
+	logger   *zap.Logger
 }
 
 type MachineSpec struct {
@@ -50,6 +53,10 @@ func (m *Machine) Init() error {
 		zap.Strings("endpoints", m.Spec.Etcd.Endpoints),
 	).Info("connecting to etcd")
 
+	if err := m.Spec.Etcd.Init(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -60,6 +67,10 @@ func (m *Machine) Run() error {
 	}
 
 	return nil
+}
+
+func (m *Machine) Node(name string) Node {
+	return async.NewAsyncNode(name, m.Spec.Etcd)
 }
 
 func (m *Machine) Logger() *zap.Logger {

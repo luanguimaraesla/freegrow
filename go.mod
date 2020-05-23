@@ -3,7 +3,7 @@ module github.com/luanguimaraesla/freegrow
 go 1.14
 
 require (
-	github.com/coreos/etcd v3.3.22+incompatible // indirect
+	github.com/coreos/etcd v3.3.22+incompatible
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/golang/protobuf v1.3.5
 	github.com/golangci/golangci-lint v1.24.0

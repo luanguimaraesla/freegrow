@@ -14,6 +14,7 @@ import (
 
 type Node interface {
 	Put(context.Context, *node.Node) error
+	Get(context.Context) (*node.Node, error)
 }
 
 type Machine struct {

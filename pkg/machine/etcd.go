@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/coreos/etcd/mvcc/mvccpb"
 	"github.com/luanguimaraesla/freegrow/internal/global"
 	"go.etcd.io/etcd/clientv3"
 	"go.uber.org/zap"
@@ -64,4 +65,20 @@ func (e *Etcd) Put(ctx context.Context, key, value string) error {
 	}
 
 	return nil
+}
+
+func (e *Etcd) Get(ctx context.Context, key string) ([]*mvccpb.KeyValue, error) {
+	cli, err := e.Client()
+	if err != nil {
+		return nil, err
+	}
+	defer cli.Close()
+
+	kv := clientv3.NewKV(cli)
+	gr, err := kv.Get(ctx, key)
+	if err != nil {
+		return nil, err
+	}
+
+	return gr.Kvs, nil
 }

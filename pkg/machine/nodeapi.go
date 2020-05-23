@@ -31,9 +31,7 @@ func (m *Machine) registerNode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m.Logger().With(
-		zap.String("node", n.Metadata.Name),
-	).Debug("saving node data")
+	m.Logger().Debug("saving node data", zap.String("node", n.Metadata.Name))
 
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
@@ -44,9 +42,7 @@ func (m *Machine) registerNode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m.Logger().With(
-		zap.String("node", n.Metadata.Name),
-	).Info("node registered")
+	m.Logger().Info("node registered", zap.String("node", n.Metadata.Name))
 
 	json.NewEncoder(w).Encode(n)
 }

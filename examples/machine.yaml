@@ -6,4 +6,6 @@ spec:
   bind: "0.0.0.0:3000"
   etcd:
     endpoints:
-    - "http://localhost:2379"
+    - "http://etcd-1:2379"
+    - "http://etcd-2:2379"
+    - "http://etcd-3:2379"

@@ -6,5 +6,5 @@ metadata:
 spec:
   board: fakeboard
   machine:
-    host: localhost
+    host: machine
     port: 3000

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/luanguimaraesla/freegrow/internal/global"
 	"go.uber.org/zap"
 )
@@ -56,7 +57,10 @@ func (m *Machine) post(path string, body []byte) (*http.Response, error) {
 		zap.String("url", url),
 	).Debug("posting to machine API")
 
-	client := &http.Client{}
+	retryClient := retryablehttp.NewClient()
+	retryClient.RetryMax = 100
+
+	client := retryClient.StandardClient()
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err

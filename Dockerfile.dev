@@ -11,6 +11,6 @@ RUN apk update \
 
 ADD . .
 
-RUN make fix
+RUN make install
 
-ENTRYPOINT ["sleep", "infinity"]
+ENTRYPOINT ["freegrow"]

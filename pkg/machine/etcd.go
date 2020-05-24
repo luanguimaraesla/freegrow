@@ -75,7 +75,7 @@ func (e *Etcd) Get(ctx context.Context, key string) ([]*mvccpb.KeyValue, error) 
 	defer cli.Close()
 
 	kv := clientv3.NewKV(cli)
-	gr, err := kv.Get(ctx, key)
+	gr, err := kv.Get(ctx, key, clientv3.WithPrefix())
 	if err != nil {
 		return nil, err
 	}

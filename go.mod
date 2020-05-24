@@ -10,6 +10,7 @@ require (
 	github.com/google/go-cmp v0.2.0
 	github.com/gorilla/mux v1.7.4
 	github.com/grpc-ecosystem/grpc-gateway v1.14.3
+	github.com/hashicorp/go-retryablehttp v0.6.6
 	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/modern-go/reflect2 v1.0.1 // indirect

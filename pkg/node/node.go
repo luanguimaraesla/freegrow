@@ -10,7 +10,7 @@ import (
 )
 
 type Node struct {
-	Kind     string             `yaml:"kind"`
+	Kind     string             `yaml:"kind" json:"kind"`
 	Metadata *resource.Metadata `yaml:"metadata" json:"metadata"`
 	Spec     *NodeSpec          `yaml:"spec" json:"spec"`
 	Status   *NodeStatus        `yaml:"status,omitempty" json:"status,omitempty"`
@@ -18,8 +18,8 @@ type Node struct {
 }
 
 type NodeSpec struct {
-	Board   nodeBoard `yaml:"board"`
-	Machine *Machine  `yaml:"machine"`
+	Board   nodeBoard `yaml:"board" json:"board"`
+	Machine *Machine  `yaml:"machine" json:"machine"`
 }
 
 func New() *Node {

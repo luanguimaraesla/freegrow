@@ -11,6 +11,7 @@ RUN apk update \
 
 ADD . .
 
-RUN make install
+RUN make build && \
+    make install
 
 ENTRYPOINT ["freegrow"]

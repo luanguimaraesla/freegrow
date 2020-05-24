@@ -3,6 +3,7 @@ package async
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 
 	"github.com/coreos/etcd/mvcc/mvccpb"
@@ -15,6 +16,7 @@ const nodesPrefix string = "nodes"
 type Storage interface {
 	Put(context.Context, string, string) error
 	Get(context.Context, string) ([]*mvccpb.KeyValue, error)
+	Delete(context.Context, string) error
 }
 
 type Node struct {
@@ -97,6 +99,10 @@ func (a *Node) Get(ctx context.Context) (*node.Node, error) {
 		return nil, err
 	}
 
+	if len(kvs) == 0 {
+		return nil, fmt.Errorf("node not found")
+	}
+
 	data := kvs[0].Value
 	n := node.New()
 
@@ -105,6 +111,15 @@ func (a *Node) Get(ctx context.Context) (*node.Node, error) {
 	}
 
 	return n, nil
+}
+
+func (a *Node) Delete(ctx context.Context) error {
+	err := a.storage.Delete(ctx, a.Key())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (a *Node) Key() string {

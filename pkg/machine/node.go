@@ -63,7 +63,7 @@ func (m *Machine) registerNode(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Machine) getNode(w http.ResponseWriter, r *http.Request) {
-	m.Logger().Info("registering node")
+	m.Logger().Info("getting node")
 
 	vars := mux.Vars(r)
 
@@ -83,11 +83,36 @@ func (m *Machine) getNode(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Machine) deleteNode(w http.ResponseWriter, r *http.Request) {
+	m.Logger().Info("removing node")
+
+	vars := mux.Vars(r)
+
+	w.Header().Set("Content-Type", "application/json")
+
+	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
+	defer cancel()
+
+	if err := m.Node(vars["name"]).Delete(ctx); err != nil {
+		m.Logger().Error("failed removing object from storage", zap.Error(err))
+		httpError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	httpOK(w, http.StatusOK)
 }
 
 func httpError(w http.ResponseWriter, code int, err error) {
 	msg := map[string]string{
 		"error": fmt.Sprintf("%v", err),
+	}
+
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(msg)
+}
+
+func httpOK(w http.ResponseWriter, code int) {
+	msg := map[string]string{
+		"message": "ok",
 	}
 
 	w.WriteHeader(code)

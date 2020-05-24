@@ -82,3 +82,19 @@ func (e *Etcd) Get(ctx context.Context, key string) ([]*mvccpb.KeyValue, error) 
 
 	return gr.Kvs, nil
 }
+
+func (e *Etcd) Delete(ctx context.Context, key string) error {
+	cli, err := e.Client()
+	if err != nil {
+		return err
+	}
+	defer cli.Close()
+
+	kv := clientv3.NewKV(cli)
+	if _, err := kv.Delete(ctx, key, clientv3.WithPrefix()); err != nil {
+		return err
+	}
+
+	return nil
+
+}

@@ -10,6 +10,7 @@ import (
 )
 
 type Node struct {
+	Kind     string             `yaml:"kind"`
 	Metadata *resource.Metadata `yaml:"metadata" json:"metadata"`
 	Spec     *NodeSpec          `yaml:"spec" json:"spec"`
 	Status   *NodeStatus        `yaml:"status,omitempty" json:"status,omitempty"`

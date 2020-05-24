@@ -18,6 +18,7 @@ type Node interface {
 }
 
 type Machine struct {
+	Kind     string             `yaml:"kind"`
 	Metadata *resource.Metadata `yaml:"metadata"`
 	Spec     *MachineSpec       `yaml:"spec"`
 	logger   *zap.Logger

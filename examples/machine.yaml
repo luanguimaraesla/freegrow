@@ -1,3 +1,4 @@
+kind: machine
 metadata:
   name: "default"
   tags:

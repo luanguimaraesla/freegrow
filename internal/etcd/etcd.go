@@ -1,4 +1,4 @@
-package machine
+package etcd
 
 import (
 	"context"
@@ -10,9 +10,19 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	requestTimeout = 10 * time.Second
+)
+
 type Etcd struct {
 	Endpoints []string `yaml:"endpoints"`
 	client    *clientv3.Client
+}
+
+func New(endpoints []string) *Etcd {
+	return &Etcd{
+		Endpoints: endpoints,
+	}
 }
 
 func (e *Etcd) Init() error {

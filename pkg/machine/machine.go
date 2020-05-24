@@ -1,8 +1,11 @@
 package machine
 
 import (
+	"context"
 	"io/ioutil"
 
+	"github.com/coreos/etcd/mvcc/mvccpb"
+	"github.com/luanguimaraesla/freegrow/internal/etcd"
 	"github.com/luanguimaraesla/freegrow/internal/global"
 	"github.com/luanguimaraesla/freegrow/internal/resource"
 	"github.com/luanguimaraesla/freegrow/pkg/async"
@@ -10,16 +13,28 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type Storage interface {
+	Init() error
+	Put(context.Context, string, string) error
+	Get(context.Context, string) ([]*mvccpb.KeyValue, error)
+	Delete(context.Context, string) error
+}
+
 type Machine struct {
 	Kind     string             `yaml:"kind"`
 	Metadata *resource.Metadata `yaml:"metadata"`
 	Spec     *MachineSpec       `yaml:"spec"`
+	storage  Storage
 	logger   *zap.Logger
 }
 
 type MachineSpec struct {
-	Bind string `yaml:"bind"`
-	Etcd *Etcd  `yaml:"etcd"`
+	Bind string    `yaml:"bind"`
+	Etcd *EtcdSpec `yaml:"etcd"`
+}
+
+type EtcdSpec struct {
+	Endpoints []string `yaml:"endpoints"`
 }
 
 func New() *Machine {
@@ -48,11 +63,21 @@ func (m *Machine) Init() error {
 		zap.Strings("endpoints", m.Spec.Etcd.Endpoints),
 	).Info("connecting to etcd")
 
-	if err := m.Spec.Etcd.Init(); err != nil {
+	m.storage = etcd.New(m.Spec.Etcd.Endpoints)
+
+	if err := m.storage.Init(); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (m *Machine) Storage() Storage {
+	if m.storage == nil {
+		m.Logger().Fatal("storage should be inilialized")
+	}
+
+	return m.storage
 }
 
 func (m *Machine) Run() error {
@@ -65,11 +90,11 @@ func (m *Machine) Run() error {
 }
 
 func (m *Machine) Node(name string) *async.Node {
-	return async.NewNode(name, m.Spec.Etcd)
+	return async.NewNode(name, m.Storage())
 }
 
 func (m *Machine) NodeList() *async.NodeList {
-	return async.NewNodeList(m.Spec.Etcd)
+	return async.NewNodeList(m.Storage())
 }
 
 func (m *Machine) Logger() *zap.Logger {

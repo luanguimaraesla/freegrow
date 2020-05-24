@@ -1,21 +1,14 @@
 package machine
 
 import (
-	"context"
 	"io/ioutil"
 
 	"github.com/luanguimaraesla/freegrow/internal/global"
 	"github.com/luanguimaraesla/freegrow/internal/resource"
 	"github.com/luanguimaraesla/freegrow/pkg/async"
-	"github.com/luanguimaraesla/freegrow/pkg/node"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 )
-
-type Node interface {
-	Put(context.Context, *node.Node) error
-	Get(context.Context) (*node.Node, error)
-}
 
 type Machine struct {
 	Kind     string             `yaml:"kind"`
@@ -71,8 +64,12 @@ func (m *Machine) Run() error {
 	return nil
 }
 
-func (m *Machine) Node(name string) Node {
-	return async.NewAsyncNode(name, m.Spec.Etcd)
+func (m *Machine) Node(name string) *async.Node {
+	return async.NewNode(name, m.Spec.Etcd)
+}
+
+func (m *Machine) NodeList() *async.NodeList {
+	return async.NewNodeList(m.Spec.Etcd)
 }
 
 func (m *Machine) Logger() *zap.Logger {

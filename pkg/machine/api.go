@@ -13,7 +13,6 @@ func (m *Machine) Listen() error {
 	router.HandleFunc("/nodes", m.getNodes).Methods("GET")
 	router.HandleFunc("/nodes", m.registerNode).Methods("POST")
 	router.HandleFunc("/nodes/{name}", m.getNode).Methods("GET")
-	router.HandleFunc("/nodes/{name}", m.updateNode).Methods("PUT")
 	router.HandleFunc("/nodes/{name}", m.deleteNode).Methods("DELETE")
 
 	m.Logger().With(

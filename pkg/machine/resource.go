@@ -16,10 +16,29 @@ type Named interface {
 	Name() string
 }
 
-func (m *Machine) getResources(w http.ResponseWriter, r *http.Request) {}
+func (m *Machine) getResources(w http.ResponseWriter, r *http.Request) {
+	m.Logger().Info("getting resources")
+
+	w.Header().Set("Content-Type", "application/json")
+
+	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
+	defer cancel()
+
+	vars := mux.Vars(r)
+	kind := vars["kind"]
+
+	resources, err := m.ResourceList(kind).List(ctx)
+	if err != nil {
+		m.Logger().Error("failed getting objects from storage", zap.Error(err))
+		httpError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	json.NewEncoder(w).Encode(resources)
+}
 
 func (m *Machine) registerResource(w http.ResponseWriter, r *http.Request) {
-	m.Logger().Info("registering node")
+	m.Logger().Info("registering resource")
 
 	w.Header().Set("Content-Type", "application/json")
 

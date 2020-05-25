@@ -101,6 +101,10 @@ func (m *Machine) Resource(kind, name string) *async.Resource {
 	return async.NewResource(kind, name, m.Storage())
 }
 
+func (m *Machine) ResourceList(kind string) *async.ResourceList {
+	return async.NewResourceList(kind, m.Storage())
+}
+
 func (m *Machine) Logger() *zap.Logger {
 	if m.logger == nil {
 		m.logger = global.Logger.With(

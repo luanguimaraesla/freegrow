@@ -46,6 +46,10 @@ func (m *Machine) Register(node *Node) error {
 	return nil
 }
 
+func (m *Machine) GetResources(node *Node) error {
+	return nil
+}
+
 func (m *Machine) post(path string, body []byte) (*http.Response, error) {
 	url := m.url(path)
 	buf := bytes.NewBuffer(body)

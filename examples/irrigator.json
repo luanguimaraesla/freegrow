@@ -1,0 +1,24 @@
+{
+    "kind": "irrigator",
+    "metadata": {
+        "name": "default",
+        "tags": {
+            "plant": "tomatoe",
+            "greenhouseVersion": "v0.0.1"
+        }
+    },
+    "spec": {
+        "enabled": true,
+        "port": 14,
+        "states": [
+            {
+                "name": "on",
+                "schedule": "5 9 * * *"
+            },
+            {
+                "name": "off",
+                "schedule": "10 9 * * *"
+            }
+        ]
+    }
+}

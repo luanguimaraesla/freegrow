@@ -3,6 +3,7 @@ package node
 import (
 	"io/ioutil"
 
+	"github.com/luanguimaraesla/freegrow/internal/controller"
 	"github.com/luanguimaraesla/freegrow/internal/global"
 	"github.com/luanguimaraesla/freegrow/internal/resource"
 	"go.uber.org/zap"
@@ -18,8 +19,8 @@ type Node struct {
 }
 
 type NodeSpec struct {
-	Board   nodeBoard `yaml:"board" json:"board"`
-	Machine *Machine  `yaml:"machine" json:"machine"`
+	Board   string   `yaml:"board" json:"board"`
+	Machine *Machine `yaml:"machine" json:"machine"`
 }
 
 func New() *Node {
@@ -49,10 +50,16 @@ func (n *Node) Init() error {
 		return err
 	}
 
+	if err := controller.DefineController(n.Spec.Board); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (n *Node) Run() error {
+	n.Logger().Info("running")
+
 	return nil
 }
 

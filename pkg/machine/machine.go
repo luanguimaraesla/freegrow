@@ -97,6 +97,10 @@ func (m *Machine) NodeList() *async.NodeList {
 	return async.NewNodeList(m.Storage())
 }
 
+func (m *Machine) Resource(kind, name string) *async.Resource {
+	return async.NewResource(kind, name, m.Storage())
+}
+
 func (m *Machine) Logger() *zap.Logger {
 	if m.logger == nil {
 		m.logger = global.Logger.With(

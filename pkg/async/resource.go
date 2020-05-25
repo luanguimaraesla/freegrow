@@ -40,10 +40,10 @@ func NewResourceList(kind string, storage Storage) *ResourceList {
 	}
 }
 
-func (rl *ResourceList) List(ctx context.Context) (*resource.List, error) {
+func (rl *ResourceList) List(ctx context.Context) (*resource.ResourceList, error) {
 	var resources []interface{}
 
-	empty := resource.NewList(resources)
+	empty := resource.NewResourceList(resources)
 
 	kvs, err := rl.storage.Get(ctx, rl.Prefix())
 	if err != nil {
@@ -64,7 +64,7 @@ func (rl *ResourceList) List(ctx context.Context) (*resource.List, error) {
 		}
 	}
 
-	list := resource.NewList(resources)
+	list := resource.NewResourceList(resources)
 
 	return list, nil
 

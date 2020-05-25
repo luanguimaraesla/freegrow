@@ -9,3 +9,5 @@ spec:
   machine:
     host: machine
     port: 3000
+  resources:
+  - "irrigator"

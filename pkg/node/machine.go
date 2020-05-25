@@ -7,11 +7,18 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"path/filepath"
 
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/luanguimaraesla/freegrow/internal/global"
+	"github.com/luanguimaraesla/freegrow/internal/resource"
+	"github.com/luanguimaraesla/freegrow/pkg/gadget/irrigator"
 	"go.uber.org/zap"
 )
+
+var availableResources = []string{
+	"irrigator",
+}
 
 type Machine struct {
 	Host   string `yaml:"host" json:"host"`
@@ -24,8 +31,6 @@ func (m *Machine) Register(node *Node) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(string(body))
 
 	resp, err := m.post("nodes", body)
 	if err != nil {
@@ -46,8 +51,51 @@ func (m *Machine) Register(node *Node) error {
 	return nil
 }
 
-func (m *Machine) GetResources(node *Node) error {
-	return nil
+func (m *Machine) GetResources(kind string) (*resource.ResourceList, error) {
+	resp, err := m.get(filepath.Join("resources", kind))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, fmt.Errorf("error getting %s resources: %d %s", kind, resp.StatusCode, body)
+	}
+
+	switch kind {
+	case "irrigator":
+		list := irrigator.NewIrrigatorList()
+		if err := json.NewDecoder(resp.Body).Decode(list); err != nil {
+			return nil, err
+		}
+
+		return resource.NewResourceList(list.Resources), nil
+	default:
+		return nil, fmt.Errorf("kind %s is not allowed", kind)
+	}
+}
+
+func (m *Machine) get(path string) (*http.Response, error) {
+	url := m.url(path)
+	req, err := http.NewRequest("GET", url, nil)
+
+	m.Logger().Debug("getting from machine API", zap.String("url", url))
+
+	retryClient := retryablehttp.NewClient()
+	retryClient.RetryMax = 10
+
+	client := retryClient.StandardClient()
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (m *Machine) post(path string, body []byte) (*http.Response, error) {
@@ -62,7 +110,7 @@ func (m *Machine) post(path string, body []byte) (*http.Response, error) {
 	).Debug("posting to machine API")
 
 	retryClient := retryablehttp.NewClient()
-	retryClient.RetryMax = 100
+	retryClient.RetryMax = 10
 
 	client := retryClient.StandardClient()
 	resp, err := client.Do(req)

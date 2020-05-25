@@ -38,7 +38,7 @@ func NewNodeList(storage Storage) *NodeList {
 	}
 }
 
-func (nl *NodeList) List(ctx context.Context) (*resource.List, error) {
+func (nl *NodeList) List(ctx context.Context) (*resource.ResourceList, error) {
 	kvs, err := nl.storage.Get(ctx, nodesPrefix)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (nl *NodeList) List(ctx context.Context) (*resource.List, error) {
 		nodes = append(nodes, n)
 	}
 
-	resources := resource.NewList(nodes)
+	resources := resource.NewResourceList(nodes)
 
 	return resources, nil
 }

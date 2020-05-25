@@ -9,6 +9,10 @@ import (
 	"go.uber.org/zap"
 )
 
+type IrrigatorList struct {
+	Resources []*Irrigator `yaml:"resources" json:"resources"`
+}
+
 type Relay interface {
 	Activate() error
 	Deactivate() error
@@ -35,6 +39,10 @@ type IrrigatorStateSpec struct {
 
 func New() *Irrigator {
 	return &Irrigator{}
+}
+
+func NewIrrigatorList() *IrrigatorList {
+	return &IrrigatorList{}
 }
 
 func (i *Irrigator) Init() error {

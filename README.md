@@ -93,7 +93,10 @@ sudo docker-compose up --build
 Freegrow relies on simple manifests to configure its internal resources, for which we have to define some custom settings in order to specify their behavior. For example, let's create an Irrigator resource using the file `examples/irrigator.json`.
 
 ```bash
-curl -XPOST -H"Content-Type: application/json" -d@examples/irrigator.json http://localhost:3000/resources/irrigator
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d @examples/irrigator.json \
+  http://localhost:3000/resources/irrigator
 ```
 
 This manifest is prepared with tags that match node tags defined in `example/node.yaml`. If you're not running using the provided docker-compose, make sure your tags are correct.

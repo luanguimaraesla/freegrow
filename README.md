@@ -3,15 +3,25 @@ Freegrow
 
 Freegrow is an opensource controller for hand-made greenhouses.
 
-The idea behind freegrow is to create an open project of a DIY greenhouse using low-cost materials and a Raspberry Pi.
+The idea behind freegrow is to create an open project of a DIY greenhouse based on low-cost materials, motors and sensors controlled by a single microprocessor (e.g Raspberry Pi).
 
-### Physical structure
+## DIY Greenhouse Manuals
 
-The greenhouse's physical structure project will be available as soon as we finalize its first version.
+The following links describe how to build your own physical machine. They have a list of materials, motors, sensors, lights, and the steps to make everything work together. Although this project is supposed to be high-adaptable, some controllers were created to work for specific models/structures, and may not work for some weird use-cases.
 
-### Hardware
+* [Physical structure](docs/PHYSICAL_STRUCTURE.md)
+* [Hardware Schema](docs/HARDWARE_SCHEMA.md)
 
-The Raspberry Pi schema, sensors, motors, and so on, will be available as soon as we finalize its first version.
+## System Overview
+
+Freegrow is a distributed system based on three main parts, the `storage`, the `machine`, and one or more `nodes`. These three pieces together create a fault-tolerant and customizable system which is basically an events manager that controlls the whole process of planting something, activating and deactivating valves, lights, and motors based on sensors data, and some simple configuration manifests.
+
+![System Overview](docs/images/overview.jpg)
+
+### Storage
+
+Freegrow uses an Etcd cluster to store all resources it needs to handle the...
+
 
 ### Install
 

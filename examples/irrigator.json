@@ -13,11 +13,11 @@
         "states": [
             {
                 "name": "on",
-                "schedule": "* * * * *"
+                "schedule": "5 9 * * *"
             },
             {
                 "name": "off",
-                "schedule": "* * * * *"
+                "schedule": "10 9 * * *"
             }
         ]
     }

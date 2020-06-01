@@ -2,6 +2,7 @@ package node
 
 import (
 	"io/ioutil"
+	"time"
 
 	"github.com/luanguimaraesla/freegrow/internal/controller"
 	"github.com/luanguimaraesla/freegrow/internal/global"
@@ -75,46 +76,50 @@ func (n *Node) Run() error {
 		return err
 	}
 
-	for _, kind := range n.Spec.Resources {
-		list, err := n.Spec.Machine.GetResources(kind)
-		if err != nil {
-			return err
-		}
+	for {
+		n.scheduler.Refresh()
 
-		for _, rsc := range list.Resources {
-			if runner, ok := rsc.(Runner); ok {
-				log := n.Logger().With(
-					zap.String("kind", kind),
-					zap.String("name", runner.Name()),
-				)
+		for _, kind := range n.Spec.Resources {
+			list, err := n.Spec.Machine.GetResources(kind)
+			if err != nil {
+				return err
+			}
 
-				if err := runner.Init(); err != nil {
-					log.Error("failed initializing runner", zap.Error(err))
-				} else {
-					log.Info("starting runner")
+			for _, rsc := range list.Resources {
+				if runner, ok := rsc.(Runner); ok {
+					log := n.Logger().With(
+						zap.String("kind", kind),
+						zap.String("name", runner.Name()),
+					)
 
-					events := runner.Events()
-					for _, event := range events {
-						log.Debug("registering a new event")
-						if err := n.scheduler.Add(event); err != nil {
-							log.Error("failed registering an event", zap.Error(err))
+					if err := runner.Init(); err != nil {
+						log.Error("failed initializing runner", zap.Error(err))
+					} else {
+						log.Debug("refreshing events")
+						events := runner.Events()
+						for _, event := range events {
+							if err := n.scheduler.Add(event); err != nil {
+								log.Error("failed registering an event", zap.Error(err))
+							}
 						}
 					}
+				} else {
+					n.Logger().Error(
+						"resource is not runnable",
+						zap.String("kind", kind),
+					)
 				}
-			} else {
-				n.Logger().Error(
-					"resource is not runnable",
-					zap.String("kind", kind),
-				)
 			}
 		}
+
+		time.Sleep(5 * time.Second)
 	}
 
-	if err := n.scheduler.Stop(); err != nil {
-		return err
-	}
+	//if err := n.scheduler.Stop(); err != nil {
+	//	return err
+	//}
 
-	return nil
+	//return nil
 }
 
 func (n *Node) Logger() *zap.Logger {

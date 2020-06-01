@@ -76,9 +76,9 @@ func (i *Irrigator) Events() []*scheduler.Event {
 	for _, state := range i.Spec.States {
 		switch state.Name {
 		case "on":
-			events = append(events, scheduler.NewEvent(state.Schedule, i.On))
+			events = append(events, scheduler.NewEvent(i, state.Schedule, i.On))
 		case "off":
-			events = append(events, scheduler.NewEvent(state.Schedule, i.Off))
+			events = append(events, scheduler.NewEvent(i, state.Schedule, i.Off))
 		default:
 			i.Logger().Error("state not found", zap.String("state", state.Name))
 		}
@@ -89,6 +89,10 @@ func (i *Irrigator) Events() []*scheduler.Event {
 
 func (i *Irrigator) Name() string {
 	return i.Metadata.Name
+}
+
+func (i *Irrigator) Class() string {
+	return i.Kind
 }
 
 func (i *Irrigator) Logger() *zap.Logger {

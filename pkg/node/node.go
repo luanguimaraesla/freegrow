@@ -33,7 +33,9 @@ type NodeSpec struct {
 }
 
 func New() *Node {
-	return &Node{}
+	return &Node{
+		scheduler: scheduler.New(),
+	}
 }
 
 func (n *Node) Load(path string) error {
@@ -93,6 +95,7 @@ func (n *Node) Run() error {
 
 					events := runner.Events()
 					for _, event := range events {
+						log.Debug("registering a new event")
 						if err := n.scheduler.Add(event); err != nil {
 							log.Error("failed registering an event", zap.Error(err))
 						}

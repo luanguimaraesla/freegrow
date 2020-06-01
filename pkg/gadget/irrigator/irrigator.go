@@ -1,11 +1,10 @@
 package irrigator
 
 import (
-	"time"
-
 	"github.com/luanguimaraesla/freegrow/internal/global"
 	"github.com/luanguimaraesla/freegrow/internal/resource"
 	"github.com/luanguimaraesla/freegrow/internal/system/relay"
+	"github.com/luanguimaraesla/freegrow/pkg/scheduler"
 	"go.uber.org/zap"
 )
 
@@ -57,27 +56,35 @@ func (i *Irrigator) Init() error {
 	return nil
 }
 
-func (i *Irrigator) Run() error {
-	i.Logger().Info("starting")
-
-	for {
-		err := i.relay.Activate()
-		if err != nil {
-			i.Logger().Error("failed activating relay", zap.Error(err))
-			return err
-		}
-
-		time.Sleep(time.Second * 2)
-
-		err = i.relay.Deactivate()
-		if err != nil {
-			i.Logger().Error("failed deactivating relay", zap.Error(err))
-			return err
-		}
-		i.Logger().Info("finishing irrigator")
-
-		time.Sleep(time.Second * 2)
+func (i *Irrigator) On() {
+	err := i.relay.Activate()
+	if err != nil {
+		i.Logger().Error("failed activating relay", zap.Error(err))
 	}
+}
+
+func (i *Irrigator) Off() {
+	err := i.relay.Deactivate()
+	if err != nil {
+		i.Logger().Error("failed deactivating relay", zap.Error(err))
+	}
+}
+
+func (i *Irrigator) Events() []*scheduler.Event {
+	events := []*scheduler.Event{}
+
+	for _, state := range i.Spec.States {
+		switch state.Name {
+		case "on":
+			events = append(events, scheduler.NewEvent(state.Schedule, i.On))
+		case "off":
+			events = append(events, scheduler.NewEvent(state.Schedule, i.Off))
+		default:
+			i.Logger().Error("state not found", zap.String("state", state.Name))
+		}
+	}
+
+	return events
 }
 
 func (i *Irrigator) Name() string {

@@ -77,6 +77,7 @@ func (n *Node) Run() error {
 	}
 
 	for {
+		// clean remaining jobs
 		n.scheduler.Refresh()
 
 		for _, kind := range n.Spec.Resources {

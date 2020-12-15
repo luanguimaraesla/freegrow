@@ -13,6 +13,13 @@ services:
     - .:/app
     ports:
       - 8000:8000
+    environment:
+      FREEGROW_POSTGRES_HOST: postgres
+      FREEGROW_POSTGRES_PORT: "5432"
+      FREEGROW_POSTGRES_DATABASE: freegrow
+      FREEGROW_POSTGRES_USERNAME: freegrow
+      FREEGROW_POSTGRES_PASSWORD: freegrow
+      FREEGROW_BIND_ADDRESS: 0.0.0.0:8000
     depends_on:
     - postgres
   postgres:
@@ -20,7 +27,7 @@ services:
     environment:
       POSTGRES_DB: freegrow
       POSTGRES_USER: freegrow
-      POSTGRES_PASSWORD: freegrow 
+      POSTGRES_PASSWORD: freegrow
     ports:
     - 5432:5432
     volumes:

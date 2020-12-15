@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/luanguimaraesla/freegrow/internal/global"
 	homedir "github.com/mitchellh/go-homedir"
@@ -36,6 +37,15 @@ var (
 	logger                       *zap.Logger
 	cfgFile, logLevel, logFormat string
 )
+
+var defaults = map[string]string{
+	"POSTGRES_USERNAME": "freegrow",
+	"POSTGRES_PASSWORD": "freegrow",
+	"POSTGRES_HOST":     "localhost",
+	"POSTGRES_PORT":     "5432",
+	"POSTGRES_DATABASE": "freegrow",
+	"BIND_ADDRESS":      "127.0.0.1:8000",
+}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -87,7 +97,12 @@ func initConfig() {
 		viper.SetConfigName(".freegrow")
 	}
 
+	viper.SetEnvPrefix("FREEGROW")
 	viper.AutomaticEnv() // read in environment variables that match
+
+	for env := range defaults {
+		viper.BindEnv(env)
+	}
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
@@ -126,4 +141,20 @@ func initLogger() {
 
 	logger = log
 	global.GlobalLogger = log
+}
+
+// getEnvOrDefault returns the environment variable
+// value returned by viper or the hardcoded default
+func getEnvOrDefault(key string) string {
+	defaultValue, ok := defaults[key]
+	if !ok {
+		logger.Fatal(fmt.Sprintf("default environment variable %s doesn't exist", key))
+	}
+
+	v := viper.GetString(strings.ToLower(key))
+	if v == "" {
+		v = defaultValue
+	}
+
+	return v
 }

@@ -15,3 +15,7 @@ build/
 
 # coverage
 coverage.out
+
+# cmd binaries
+cmd/freegrow/freegrow
+cmd/migrate/migrate

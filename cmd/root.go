@@ -40,8 +40,8 @@ var (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "freegrow",
-	Short: "freegrow is a opensource tool used to control hand made greenhouses",
-	Long:  "freegrow is a opensource tool used to control hand made greenhouses",
+	Short: "freegrow is a opensource API server used to control greenhouses remote devices",
+	Long:  "freegrow is a opensource API server used to control greenhouses remote devices",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -125,5 +125,5 @@ func initLogger() {
 	defer log.Sync()
 
 	logger = log
-	global.Logger = log
+	global.GlobalLogger = log
 }

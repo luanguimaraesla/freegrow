@@ -19,35 +19,21 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 )
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
-	Use:   "start",
-	Short: "start freegrow server",
-	Long:  `start freegrow server`,
+	Use:   "start [COMPONENT]",
+	Short: "start freegrow components",
+	Long:  `start freegrow components`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := cmd.Help(); err != nil {
 			log.Panic(err)
 		}
 		os.Exit(0)
 	},
-	PersistentPreRun: preStart,
 }
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-
-	startCmd.PersistentFlags().StringP("file", "f", "", "resource manifest")
-
-	if err := cobra.MarkFlagRequired(startCmd.PersistentFlags(), "file"); err != nil {
-		logger.Fatal("please set --file flag", zap.Error(err))
-	}
-}
-
-func preStart(cmd *cobra.Command, args []string) {
-	logger = logger.With(
-		zap.String("command", "start"),
-	)
 }

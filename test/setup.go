@@ -64,54 +64,6 @@ func GetSetup(configurations []ConfigurationFunc) func(*testing.M) {
 	}
 }
 
-// ConfigureTempDir creates a temporary directory within the module path
-// to run tests, fork fixtures, etc
-func ConfigureTempDir() (TeardownFunc, error) {
-	testRelativePath := "./"
-	testDir := "tmp"
-	testPath := testRelativePath + testDir
-
-	// start test isolated environment
-	fmt.Println("creating temporary test environment")
-
-	wdir, err := os.Getwd()
-	if err != nil {
-		return func() error {
-			return nil
-		}, fmt.Errorf("error getting current directory: %v", err)
-	}
-
-	if err := os.MkdirAll(testDir, os.ModePerm); err != nil {
-		return func() error {
-			return nil
-		}, fmt.Errorf("error creating tmp dir")
-	}
-
-	err = os.Chdir(testPath)
-	if err != nil {
-		return func() error {
-			return nil
-		}, fmt.Errorf("error creating temporary directory for test files: %v", err)
-	}
-
-	teardown := func() error {
-		fmt.Println("cleaning test environment")
-
-		if err := os.Chdir(wdir); err != nil {
-			return fmt.Errorf("failed to clean test environment")
-		}
-
-		err = os.RemoveAll(testPath)
-		if err != nil {
-			return fmt.Errorf("failed to remove test directory 'tmp': %v", err)
-		}
-
-		return nil
-	}
-
-	return teardown, nil
-}
-
 // ConfigureFlags parses command flags
 func ConfigureFlags() (TeardownFunc, error) {
 	flag.BoolVar(&SkipSetup, "skip-setup", false, "skip environment setup")

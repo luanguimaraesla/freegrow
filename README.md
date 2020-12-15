@@ -1,9 +1,9 @@
 Freegrow
 ========
 
-Freegrow is an opensource controller for hand-made greenhouses.
+Freegrow is an opensource controller for greenhouses components, like irrigators.
 
-The idea behind freegrow is to create an open project of a DIY greenhouse based on low-cost materials, motors and sensors controlled by a single microprocessor (e.g Raspberry Pi).
+**Warning**: The project is currently being totally recreated in order to support outdoor greenhouses and customizable components. It means this documentation might be outdated. We're going to update this as soon as we have the first working version.
 
 ## DIY Greenhouse Manuals
 

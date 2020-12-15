@@ -33,7 +33,7 @@ var startBrainCmd = &cobra.Command{
 func init() {
 	startCmd.AddCommand(startBrainCmd)
 
-	startBrainCmd.Flags().String("bind", getEnvOrDefault("BIND_ADDRESS"), "server bind address")
+	startBrainCmd.Flags().String("bind", "", "server bind address")
 }
 
 func startBrain(cmd *cobra.Command, args []string) {
@@ -68,6 +68,10 @@ func initServer(cmd *cobra.Command, args []string) {
 	bind, err := cmd.Flags().GetString("bind")
 	if err != nil {
 		logger.Fatal("option --bind is missing", zap.Error(err))
+	}
+
+	if bind == "" {
+		bind = getEnvOrDefault("BIND_ADDRESS")
 	}
 
 	b := brain.New()

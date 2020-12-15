@@ -40,21 +40,21 @@ LDFLAGS=-ldflags "-X=${GITREMOTE}/internal/global.Version=$(VERSION) -extldflags
 
 .DEFAULT_GOAL := all
 .PHONY: all
-all: fix build install
+all: fix install
 
 .PHONY: install
 install:
-	@echo "  >  Installing ${PROJECT}"
-	@GOBINDIR=$(GOBINDIR) $(GOINSTALL) $(LDFLAGS)
+	@echo ">  Installing ${PROJECT}"
+	@GOBINDIR=$(GOBINDIR) $(GOINSTALL) $(LDFLAGS) ./...
 
 .PHONY: uninstall
 uninstall:
-	@echo "  > Uninstalling ${PROJECT}"
+	@echo "> Uninstalling ${PROJECT}"
 	$(RM) $(GOPATH)/bin/$(PROJECT)
 
 .PHONY: clean
 clean:
-	@echo "  >  Cleaning build cache"
+	@echo ">  Cleaning build cache"
 	@GOBINDIR=$(GOBINDIR) $(GOCLEAN)
 	$(RM) coverage.out
 
@@ -67,13 +67,13 @@ check: test
 
 .PHONY: build
 build:
-	@echo "  >  Building binary"
+	@echo ">  Building binary"
 	@mkdir -p $(GOBINDIR)
-	$(GOBUILD) $(LDFLAGS) -o $(GOBINDIR)/$(PROJECT)
+	$(GOBUILD) $(LDFLAGS) -o $(GOBINDIR)/ ./...
 
 .PHONY: test
 test:
-	@echo "  >  Executing tests"
+	@echo ">  Executing tests"
 	$(GOTEST) -v -tags=unit -coverprofile=coverage.out ./... $(SILENT_CMD_SUFFIX)
 
 .PHONY: cover
@@ -87,13 +87,14 @@ cover/html:
 cover/text:
 	$(GOTOOL) cover -func=coverage.out
 
+
 ################################################################################
 ## Linters and formatters
 ################################################################################
 
 .PHONY: fix
 fix:
-	@echo "  >  Making sure go.mod matches the source code"
+	@echo ">  Making sure go.mod matches the source code"
 	$(GOMOD) vendor
 	$(GOMOD) tidy
 ifneq ($(SOURCES),)
@@ -102,8 +103,17 @@ endif
 
 .PHONY: lint
 lint:
-	@echo "  >  Running lint"
+	@echo ">  Running lint"
 	$(GOLANGCI_LINT) run
+
+################################################################################
+## Migrations
+################################################################################
+
+.PHONY: migrate
+migrate:
+	@echo ">  Migrating"
+	$(GORUN) -tags migrate cmd/migrate/main.go
 
 ################################################################################
 ## Docker
@@ -111,11 +121,11 @@ lint:
 
 .PHONY: build-docker
 build-docker:
-	@echo "  >  Building docker"
+	@echo ">  Building docker"
 	sudo docker build -t $(DOCKER_IMAGE):latest -t $(DOCKER_IMAGE):$(VERSION) .
 
 .PHONY: release-docker
 release-docker: build-docker
-	@echo "  >  Releasing docker"
+	@echo ">  Releasing docker"
 	sudo docker push $(DOCKER_IMAGE):latest
 	sudo docker push $(DOCKER_IMAGE):$(VERSION)

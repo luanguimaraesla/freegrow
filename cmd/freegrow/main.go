@@ -18,24 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package cmd
+package main
 
-import (
-	"fmt"
-
-	"github.com/luanguimaraesla/freegrow/internal/global"
-	"github.com/spf13/cobra"
-)
-
-// versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "check freegrow CLI version",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(global.Version)
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(versionCmd)
+func main() {
+	Execute()
 }

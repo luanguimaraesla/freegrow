@@ -20,8 +20,22 @@
 
 package main
 
-import "github.com/luanguimaraesla/freegrow/cmd"
+import (
+	"fmt"
 
-func main() {
-	cmd.Execute()
+	"github.com/luanguimaraesla/freegrow/internal/global"
+	"github.com/spf13/cobra"
+)
+
+// versionCmd represents the version command
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "check freegrow CLI version",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(global.Version)
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(versionCmd)
 }

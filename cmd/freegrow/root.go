@@ -26,11 +26,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/luanguimaraesla/freegrow/internal/global"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/luanguimaraesla/freegrow/internal/log"
 )
 
 var (
@@ -52,15 +53,6 @@ var rootCmd = &cobra.Command{
 	Use:   "freegrow",
 	Short: "freegrow is a opensource API server used to control greenhouses remote devices",
 	Long:  "freegrow is a opensource API server used to control greenhouses remote devices",
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 }
 
 func init() {
@@ -116,7 +108,6 @@ func initLogger() {
           "encoding": "%s",
           "outputPaths": ["stdout"],
           "errorOutputPaths": ["stderr"],
-          "initialFields": {"version": "%s"},
           "encoderConfig": {
             "messageKey": "message",
             "levelKey": "level",
@@ -125,7 +116,6 @@ func initLogger() {
         }`,
 		logLevel,
 		logFormat,
-		global.Version,
 	))
 
 	var cfg zap.Config
@@ -133,14 +123,13 @@ func initLogger() {
 		panic(err)
 	}
 
-	log, err := cfg.Build()
+	defaultLogger, err := cfg.Build()
 	if err != nil {
 		panic(err)
 	}
-	defer log.Sync()
+	defer defaultLogger.Sync()
 
-	logger = log
-	global.GlobalLogger = log
+	log.L = defaultLogger
 }
 
 // getEnvOrDefault returns the environment variable

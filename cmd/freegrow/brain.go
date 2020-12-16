@@ -17,57 +17,55 @@ package main
 import (
 	_ "github.com/lib/pq"
 	"github.com/luanguimaraesla/freegrow/internal/database"
+	"github.com/luanguimaraesla/freegrow/internal/log"
 	"github.com/luanguimaraesla/freegrow/pkg/brain"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
 
-// startBrainCmd represents the start command
-var startBrainCmd = &cobra.Command{
+// brainCmd represents the start command
+var brainCmd = &cobra.Command{
 	Use:   "brain",
-	Short: "start freegrow API brain",
-	Long:  `start freegrow API brain`,
+	Short: "freegrow API brain",
+	Long:  `freegrow API brain`,
 	Run:   startBrain,
 }
 
 func init() {
-	startCmd.AddCommand(startBrainCmd)
+	rootCmd.AddCommand(brainCmd)
 
-	startBrainCmd.Flags().String("bind", "", "server bind address")
+	brainCmd.Flags().String("bind", "", "server bind address")
 }
 
 func startBrain(cmd *cobra.Command, args []string) {
-	logger.Info("initializing system")
+	log.L.Info("initializing system")
 
 	initDB(cmd, args)
 	initServer(cmd, args)
 
-	logger.Info("finished")
+	log.L.Info("finished")
 }
 
 func initDB(cmd *cobra.Command, args []string) {
-	var err error
+	database.Init(
+		getEnvOrDefault("POSTGRES_HOST"),
+		getEnvOrDefault("POSTGRES_PORT"),
+		getEnvOrDefault("POSTGRES_DATABASE"),
+		getEnvOrDefault("POSTGRES_USERNAME"),
+		getEnvOrDefault("POSTGRES_PASSWORD"),
+	)
 
-	o := &database.ConnectionOptions{
-		Host:     getEnvOrDefault("POSTGRES_HOST"),
-		Port:     getEnvOrDefault("POSTGRES_PORT"),
-		Database: getEnvOrDefault("POSTGRES_DATABASE"),
-		Username: getEnvOrDefault("POSTGRES_USERNAME"),
-		Password: getEnvOrDefault("POSTGRES_PASSWORD"),
+	if err := database.Ping(); err != nil {
+		log.L.Fatal("failed connecting to postgres", zap.Error(err))
 	}
 
-	err = database.Connect(o)
-	if err != nil {
-		logger.Fatal("failed connecting to postgres", zap.Error(err))
-	}
-
-	logger.Info("successfully connected!")
+	log.L.Info("successfully connected!")
 }
 
 func initServer(cmd *cobra.Command, args []string) {
 	bind, err := cmd.Flags().GetString("bind")
 	if err != nil {
-		logger.Fatal("option --bind is missing", zap.Error(err))
+		log.L.Fatal("option --bind is missing", zap.Error(err))
 	}
 
 	if bind == "" {
@@ -76,13 +74,7 @@ func initServer(cmd *cobra.Command, args []string) {
 
 	b := brain.New()
 
-	if err := b.Init(); err != nil {
-		logger.Fatal("unable to initialize system", zap.Error(err))
-	}
-
-	logger.Info("starting freegrow brain server")
-
 	if err := b.Listen(bind); err != nil {
-		logger.Fatal("unable to start freegrow brain server", zap.Error(err))
+		log.L.Fatal("unable to start freegrow brain server", zap.Error(err))
 	}
 }

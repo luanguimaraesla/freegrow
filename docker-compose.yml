@@ -7,7 +7,6 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     command:
-    - "start"
     - "brain"
     volumes:
     - .:/app

@@ -1,8 +1,8 @@
-package global
+package log
 
 import "go.uber.org/zap"
 
-var GlobalLogger *zap.Logger
+var L *zap.Logger
 
 type Logger struct {
 	L *zap.Logger
@@ -10,6 +10,6 @@ type Logger struct {
 
 func NewLogger(fields ...zap.Field) *Logger {
 	return &Logger{
-		GlobalLogger.With(fields...),
+		L.With(fields...),
 	}
 }

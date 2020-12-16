@@ -1,19 +1,13 @@
 package brain
 
 import (
-	"github.com/luanguimaraesla/freegrow/internal/global"
+	"github.com/luanguimaraesla/freegrow/internal/log"
 )
 
 type Brain struct {
-	*global.Logger
+	*log.Logger
 }
 
 func New() *Brain {
-	return &Brain{global.NewLogger()}
-}
-
-func (b *Brain) Init() error {
-	b.L.Info("checking connection with database")
-
-	return nil
+	return &Brain{log.NewLogger()}
 }

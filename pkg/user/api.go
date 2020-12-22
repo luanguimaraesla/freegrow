@@ -172,7 +172,7 @@ func RegisterUserGadget(w http.ResponseWriter, r *http.Request) {
 		log.L.Fatal("unable to register a new gadget", zap.Error(err))
 	}
 
-	msg := fmt.Sprint("gadget %s registered successfully", g.UUID)
+	msg := fmt.Sprintf("gadget %s registered successfully", g.UUID)
 
 	res := response{
 		ID:      int64(id),

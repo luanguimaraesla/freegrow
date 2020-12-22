@@ -42,7 +42,7 @@ func getGadgetByUUID(UUID string) (*Gadget, error) {
 
 	defer db.Close()
 
-	sqlStatement := `SELECT (gadget_uuid, user_id, enabled) FROM gadgets WHERE gadget_uuid=$1`
+	sqlStatement := `SELECT gadget_uuid,user_id,enabled FROM gadgets WHERE gadget_uuid=$1`
 
 	gadget := New()
 
@@ -71,7 +71,7 @@ func getAllGadgets() ([]*Gadget, error) {
 
 	defer db.Close()
 
-	sqlStatement := `SELECT (gadget_uuid, user_id, enabled) FROM gadgets`
+	sqlStatement := `SELECT gadget_uuid,user_id,enabled FROM gadgets`
 
 	rows, err := db.Query(sqlStatement)
 	if err != nil {
@@ -106,7 +106,7 @@ func updateGadget(gadget *Gadget) error {
 
 	defer db.Close()
 
-	sqlStatement := `UPDATE gadgets SET enabled=$4 WHERE gadget_uuid=$1`
+	sqlStatement := `UPDATE gadgets SET enabled=$2 WHERE gadget_uuid=$1`
 
 	res, err := db.Exec(sqlStatement, gadget.UUID, gadget.Enabled)
 	if err != nil {
@@ -167,7 +167,7 @@ func getUserGadgets(ID int64) ([]*Gadget, error) {
 
 	defer db.Close()
 
-	sqlStatement := `SELECT (gadget_uuid, user_id, enabled) FROM gadgets WHERE user_id=$1`
+	sqlStatement := `SELECT gadget_uuid,user_id,enabled FROM gadgets WHERE user_id=$1`
 
 	rows, err := db.Query(sqlStatement, ID)
 	if err != nil {

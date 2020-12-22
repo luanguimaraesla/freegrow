@@ -5,7 +5,7 @@ import (
 )
 
 type Gadget struct {
-	UUID    string `json:"gadget_id"`
+	UUID    string `json:"gadget_uuid"`
 	UserID  int64  `json:"user_id"`
 	Enabled bool   `json:"enabled"`
 }

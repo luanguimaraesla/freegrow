@@ -112,8 +112,13 @@ lint:
 
 .PHONY: migrate
 migrate:
-	@echo ">  Migrating"
-	$(GORUN) -tags migrate cmd/migrate/main.go
+	@echo ">  Migrating: UP"
+	$(GORUN) -tags migrate cmd/migrate/main.go -cmd up
+
+.PHONY: drop
+drop:
+	@echo ">  Migrating: DOWN"
+	$(GORUN) -tags migrate cmd/migrate/main.go -cmd down
 
 ################################################################################
 ## Docker

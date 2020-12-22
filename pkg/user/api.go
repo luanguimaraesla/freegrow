@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/luanguimaraesla/freegrow/internal/log"
+	"github.com/luanguimaraesla/freegrow/pkg/gadget"
 	"go.uber.org/zap"
 )
 
@@ -132,6 +133,46 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	log.L.Info("user deleted successfully", zap.Int64("userID", int64(id)))
 
 	msg := fmt.Sprintf("user deleted successfully")
+
+	res := response{
+		ID:      int64(id),
+		Message: msg,
+	}
+
+	json.NewEncoder(w).Encode(res)
+}
+
+// RegisterUserGadget creates an user gadget row in the database
+func RegisterUserGadget(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Context-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	params := mux.Vars(r)
+
+	// convert the id type from string to int
+	id, err := strconv.Atoi(params["user_id"])
+	if err != nil {
+		log.L.Fatal("unable to parse user_id into int64", zap.Error(err))
+	}
+
+	users := NewUsers()
+
+	user, err := users.Get(int64(id))
+	if err != nil {
+		log.L.Fatal("unable to get user", zap.Error(err))
+	}
+
+	g := gadget.New()
+
+	if err := json.NewDecoder(r.Body).Decode(&g); err != nil {
+		log.L.Fatal("unable to decode the request body", zap.Error(err))
+	}
+
+	if err := user.Gadgets().Register(g); err != nil {
+		log.L.Fatal("unable to register a new gadget", zap.Error(err))
+	}
+
+	msg := fmt.Sprint("gadget %s registered successfully", g.UUID)
 
 	res := response{
 		ID:      int64(id),

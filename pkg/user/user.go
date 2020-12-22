@@ -2,6 +2,8 @@ package user
 
 import (
 	"fmt"
+
+	"github.com/luanguimaraesla/freegrow/pkg/gadget"
 )
 
 type User struct {
@@ -41,4 +43,9 @@ func (u *User) Delete() error {
 	}
 
 	return nil
+}
+
+// Gadgets returns a list of user's gadgets
+func (u *User) Gadgets() *gadget.Gadgets {
+	return gadget.NewUserGadgets(u.ID)
 }

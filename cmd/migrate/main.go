@@ -3,6 +3,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -21,6 +22,9 @@ func getEnv(key, fallback string) string {
 }
 
 func main() {
+	cmd := flag.String("cmd", "up", "[up or down]")
+	flag.Parse()
+
 	pgUsername := getEnv("POSTGRES_USER", "freegrow")
 	pgPassword := getEnv("POSTGRES_PASSWORD", "freegrow")
 	pgDatabase := getEnv("POSTGRES_DATABASE", "freegrow")
@@ -42,7 +46,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := m.Up(); err != nil {
-		log.Fatal(err)
+	switch string(*cmd) {
+	case "up":
+		log.Println("Starting migration: UP")
+		if err := m.Up(); err != nil {
+			log.Fatal(err)
+		}
+	case "down":
+		log.Println("Starting migration: DOWN")
+		if err := m.Down(); err != nil {
+			log.Fatal(err)
+		}
+	default:
+		log.Fatal("command not found")
 	}
+
+	log.Println("Finished")
 }

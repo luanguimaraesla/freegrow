@@ -33,8 +33,8 @@ func insertGadget(gadget *Gadget) error {
 	return nil
 }
 
-// getGadgetByUUID gets only one gadget from the DB by its gadget_uuid
-func getGadgetByUUID(UUID string) (*Gadget, error) {
+// getGadget gets only one gadget from the DB by its gadget_uuid
+func getGadget(userID int64, UUID string) (*Gadget, error) {
 	db, err := database.Connect()
 	if err != nil {
 		return nil, err
@@ -42,12 +42,12 @@ func getGadgetByUUID(UUID string) (*Gadget, error) {
 
 	defer db.Close()
 
-	sqlStatement := `SELECT gadget_uuid,user_id,enabled FROM gadgets WHERE gadget_uuid=$1`
+	sqlStatement := `SELECT gadget_uuid,user_id,enabled FROM gadgets WHERE user_id=$1 AND gadget_uuid=$2`
 
 	gadget := New()
 
 	// execute the sql statement
-	row := db.QueryRow(sqlStatement, UUID)
+	row := db.QueryRow(sqlStatement, userID, UUID)
 
 	// unmarshal the row object to gadget
 	if err := row.Scan(&gadget.UUID, &gadget.UserID, &gadget.Enabled); err != nil {
@@ -60,42 +60,6 @@ func getGadgetByUUID(UUID string) (*Gadget, error) {
 	return gadget, nil
 }
 
-// getAllGadgets returns a list with the all gadgets registered
-func getAllGadgets() ([]*Gadget, error) {
-	var gadgets []*Gadget
-
-	db, err := database.Connect()
-	if err != nil {
-		return gadgets, err
-	}
-
-	defer db.Close()
-
-	sqlStatement := `SELECT gadget_uuid,user_id,enabled FROM gadgets`
-
-	rows, err := db.Query(sqlStatement)
-	if err != nil {
-		return gadgets, fmt.Errorf(
-			"unable to execute `%s`: %v",
-			sqlStatement, err,
-		)
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		gadget := New()
-
-		if err := rows.Scan(&gadget.UUID, &gadget.UserID, &gadget.Enabled); err != nil {
-			return gadgets, fmt.Errorf("unable to scan a gadget row: %v", err)
-		}
-
-		gadgets = append(gadgets, gadget)
-	}
-
-	return gadgets, err
-}
-
 // updateGadget changes the gadget row in the database
 // according to the new given User model
 func updateGadget(gadget *Gadget) error {
@@ -106,9 +70,9 @@ func updateGadget(gadget *Gadget) error {
 
 	defer db.Close()
 
-	sqlStatement := `UPDATE gadgets SET enabled=$2 WHERE gadget_uuid=$1`
+	sqlStatement := `UPDATE gadgets SET enabled=$3 WHERE user_id=$1 AND gadget_uuid=$2`
 
-	res, err := db.Exec(sqlStatement, gadget.UUID, gadget.Enabled)
+	res, err := db.Exec(sqlStatement, gadget.UserID, gadget.UUID, gadget.Enabled)
 	if err != nil {
 		return fmt.Errorf(
 			"unable to execute `%s` with gadget_uuid `%s`: %v",
@@ -127,7 +91,7 @@ func updateGadget(gadget *Gadget) error {
 }
 
 // deleteGadget deletes an gadget from DB
-func deleteGadget(UUID string) error {
+func deleteGadget(gadget *Gadget) error {
 	db, err := database.Connect()
 	if err != nil {
 		return err
@@ -135,13 +99,13 @@ func deleteGadget(UUID string) error {
 
 	defer db.Close()
 
-	sqlStatement := `DELETE FROM gadgets WHERE gadget_uuid=$1`
+	sqlStatement := `DELETE FROM gadgets WHERE user_id=$1 AND gadget_uuid=$2`
 
-	res, err := db.Exec(sqlStatement, UUID)
+	res, err := db.Exec(sqlStatement, gadget.UserID, gadget.UUID)
 	if err != nil {
 		return fmt.Errorf(
 			"unable to execute `%s` with gadget_uuid `%s`: %v",
-			sqlStatement, UUID, err,
+			sqlStatement, gadget.UUID, err,
 		)
 	}
 

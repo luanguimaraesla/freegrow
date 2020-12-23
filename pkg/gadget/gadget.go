@@ -35,7 +35,7 @@ func (g *Gadget) Update() error {
 
 // Delete deletes the gadget record from the database
 func (g *Gadget) Delete() error {
-	if err := deleteGadget(g.UUID); err != nil {
+	if err := deleteGadget(g); err != nil {
 		return fmt.Errorf("unable to delete gadget", err)
 	}
 

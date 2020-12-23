@@ -47,5 +47,5 @@ func (u *User) Delete() error {
 
 // Gadgets returns a list of user's gadgets
 func (u *User) Gadgets() *gadget.Gadgets {
-	return gadget.NewUserGadgets(u.ID)
+	return gadget.NewGadgets(u.ID)
 }

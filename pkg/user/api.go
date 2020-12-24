@@ -18,29 +18,6 @@ type response struct {
 	Message string      `json:"message,omitempty"`
 }
 
-// CreateUser creates an user row in the database
-func CreateUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Context-Type", "application/json")
-
-	user := New()
-
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		log.L.Fatal("unable to decode the request body", zap.Error(err))
-	}
-
-	if err := user.Create(); err != nil {
-		log.L.Fatal("unable to create user", zap.Error(err))
-	}
-
-	res := response{
-		ID:      user.ID,
-		Message: "user created successfully",
-	}
-
-	json.NewEncoder(w).Encode(res)
-}
-
 // GetUser will return a single user by its ID
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
@@ -54,20 +31,6 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(user)
-}
-
-// GetUsers will return all the users
-func GetUsers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Context-Type", "application/json")
-
-	users := NewUsers()
-
-	all, err := users.All()
-	if err != nil {
-		log.L.Fatal("unable to get all users", zap.Error(err))
-	}
-
-	json.NewEncoder(w).Encode(all)
 }
 
 // UpdateUser update user's detail in the postgres db
@@ -263,6 +226,72 @@ func UpdateUserGadget(w http.ResponseWriter, r *http.Request) {
 	res := response{
 		ID:      UUID,
 		Message: msg,
+	}
+
+	json.NewEncoder(w).Encode(res)
+}
+
+// Signin is used to created users get access to the system
+func Signin(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Context-Type", "application/json")
+
+	creds := struct {
+		Identity string `json:"identity"`
+		Password string `json:"password"`
+	}{}
+
+	err := json.NewDecoder(r.Body).Decode(&creds)
+	if err != nil {
+		log.L.Error("unable to decode the request body", zap.Error(err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	users := NewUsers()
+
+	user, err := users.Search(creds.Identity)
+	if err != nil {
+		log.L.Error("unable to find user", zap.Error(err))
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if !user.checkPassword(creds.Password) {
+		log.L.Error("unable to login: wrong password")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	res := response{
+		ID:      user.ID,
+		Message: "user logged in successfully",
+	}
+
+	json.NewEncoder(w).Encode(res)
+}
+
+// Signup is used to register new users
+func Signup(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Context-Type", "application/json")
+
+	user := New()
+
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		log.L.Error("unable to decode the request body", zap.Error(err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := user.Create(); err != nil {
+		log.L.Error("unable to create user", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	res := response{
+		ID:      user.ID,
+		Message: "user created successfully",
 	}
 
 	json.NewEncoder(w).Encode(res)

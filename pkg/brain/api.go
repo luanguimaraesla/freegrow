@@ -11,9 +11,11 @@ import (
 func (b *Brain) Listen(bind string) error {
 	router := mux.NewRouter()
 
+	// auth routes
+	router.HandleFunc("/signup", user.Signup).Methods("POST")
+	router.HandleFunc("/signin", user.Signin).Methods("POST")
+
 	// user routes
-	router.HandleFunc("/users", user.GetUsers).Methods("GET")
-	router.HandleFunc("/users", user.CreateUser).Methods("POST")
 	router.HandleFunc("/users/{user_id}", user.GetUser).Methods("GET")
 	router.HandleFunc("/users/{user_id}", user.DeleteUser).Methods("DELETE")
 	router.HandleFunc("/users/{user_id}", user.UpdateUser).Methods("UPDATE")

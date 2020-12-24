@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/luanguimaraesla/freegrow/pkg/gadget"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -48,4 +49,14 @@ func (u *User) Delete() error {
 // Gadgets returns a list of user's gadgets
 func (u *User) Gadgets() *gadget.Gadgets {
 	return gadget.NewGadgets(u.ID)
+}
+
+// checkPassword receives a plain password and compares
+// with the encrypted one stored in the database
+func (u *User) checkPassword(password string) bool {
+	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
+		return false
+	}
+
+	return true
 }

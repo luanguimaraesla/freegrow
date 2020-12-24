@@ -19,11 +19,16 @@ func insertUser(user *User) error {
 
 	sqlStatement := `INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING user_id`
 
+	hashedPassword, err := hash(user.Password)
+	if err != nil {
+		return fmt.Errorf("failed encrypting user's password: %v", err)
+	}
+
 	if err := db.QueryRow(
 		sqlStatement,
 		user.Username,
 		user.Email,
-		user.Password,
+		hashedPassword,
 	).Scan(&user.ID); err != nil {
 		log.L.Fatal("unable to execute the query", zap.Error(err))
 	}
@@ -33,8 +38,10 @@ func insertUser(user *User) error {
 	return nil
 }
 
-// getUser gets only one user from the DB by its user_id
-func getUserByID(ID int64) (*User, error) {
+// getUsersWhere gets only one user from the DB by its user_id
+func getUsersWhere(exp string) ([]*User, error) {
+	var users []*User
+
 	db, err := database.Connect()
 	if err != nil {
 		return nil, err
@@ -42,43 +49,15 @@ func getUserByID(ID int64) (*User, error) {
 
 	defer db.Close()
 
-	sqlStatement := `SELECT * FROM users WHERE user_id=$1`
+	sqlStatement := "SELECT user_id,username,password,email FROM users"
 
-	user := New()
-
-	// execute the sql statement
-	row := db.QueryRow(sqlStatement, ID)
-
-	// unmarshal the row object to user
-	if err := row.Scan(&user.ID, &user.Username, &user.Password, &user.Email); err != nil {
-		return nil, fmt.Errorf(
-			"unable to execute `%s` with user_id %v: %v",
-			sqlStatement, ID, err,
-		)
+	if exp != "" {
+		sqlStatement = fmt.Sprintf("%s WHERE %s", sqlStatement, exp)
 	}
-
-	return user, nil
-}
-
-// getAllUsers returns a list with the all users registered
-func getAllUsers() ([]*User, error) {
-	var users []*User
-
-	db, err := database.Connect()
-	if err != nil {
-		return users, err
-	}
-
-	defer db.Close()
-
-	sqlStatement := `SELECT * FROM users`
 
 	rows, err := db.Query(sqlStatement)
 	if err != nil {
-		return users, fmt.Errorf(
-			"unable to execute `%s`: %v",
-			sqlStatement, err,
-		)
+		return users, fmt.Errorf("unable to execute `%s`: %v", sqlStatement, err)
 	}
 
 	defer rows.Close()
@@ -93,7 +72,32 @@ func getAllUsers() ([]*User, error) {
 		users = append(users, user)
 	}
 
-	return users, err
+	return users, nil
+}
+
+// getUserWhere return a single row that matches a given expression
+func getUserWhere(exp string) (*User, error) {
+	db, err := database.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	defer db.Close()
+
+	sqlStatement := "SELECT user_id,username,password,email FROM users"
+
+	if exp != "" {
+		sqlStatement = fmt.Sprintf("%s WHERE %s", sqlStatement, exp)
+	}
+
+	row := db.QueryRow(sqlStatement)
+	user := New()
+
+	if err := row.Scan(&user.ID, &user.Username, &user.Password, &user.Email); err != nil {
+		return nil, fmt.Errorf("unable to scan a user row: %v", err)
+	}
+
+	return user, nil
 }
 
 // updateUser changes the user row in the database

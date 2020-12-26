@@ -16,6 +16,7 @@ package main
 
 import (
 	_ "github.com/lib/pq"
+	"github.com/luanguimaraesla/freegrow/internal/cache"
 	"github.com/luanguimaraesla/freegrow/internal/database"
 	"github.com/luanguimaraesla/freegrow/internal/log"
 	"github.com/luanguimaraesla/freegrow/pkg/brain"
@@ -41,6 +42,7 @@ func startBrain(cmd *cobra.Command, args []string) {
 	log.L.Info("initializing system")
 
 	initDB(cmd, args)
+	initCache(cmd, args)
 	initServer(cmd, args)
 
 	log.L.Info("finished")
@@ -59,7 +61,19 @@ func initDB(cmd *cobra.Command, args []string) {
 		log.L.Fatal("failed connecting to postgres", zap.Error(err))
 	}
 
-	log.L.Info("successfully connected!")
+	log.L.Info("successfully connected to postgres!")
+}
+
+func initCache(cmd *cobra.Command, args []string) {
+	cache.Init(
+		getEnvOrDefault("REDIS_URL"),
+	)
+
+	if err := cache.Ping(); err != nil {
+		log.L.Fatal("failed connecting to cache", zap.Error(err))
+	}
+
+	log.L.Info("successfully connected to cache!")
 }
 
 func initServer(cmd *cobra.Command, args []string) {

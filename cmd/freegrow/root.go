@@ -46,6 +46,7 @@ var defaults = map[string]string{
 	"POSTGRES_PORT":     "5432",
 	"POSTGRES_DATABASE": "freegrow",
 	"BIND_ADDRESS":      "127.0.0.1:8000",
+	"REDIS_URL":         "redis://redis:6379",
 }
 
 // rootCmd represents the base command when called without any subcommands

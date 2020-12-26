@@ -19,8 +19,10 @@ services:
       FREEGROW_POSTGRES_USERNAME: freegrow
       FREEGROW_POSTGRES_PASSWORD: freegrow
       FREEGROW_BIND_ADDRESS: 0.0.0.0:8000
+      FREEGROW_REDIS_URL: "redis://redis:6379"
     depends_on:
     - postgres
+    - redis
   postgres:
     image: postgres:13.1
     environment:
@@ -31,5 +33,10 @@ services:
     - 5432:5432
     volumes:
     - db_data:/var/lib/postgresql/data
+  redis:
+    image: redis:6.0
+    ports:
+    - 6379:6379
+
 volumes:
   db_data: {}

@@ -6,6 +6,7 @@ require (
 	github.com/gofrs/flock v0.7.1 // indirect
 	github.com/golang-migrate/migrate/v4 v4.14.1
 	github.com/golangci/golangci-lint v1.24.0
+	github.com/gomodule/redigo v1.8.3
 	github.com/gorilla/mux v1.7.4
 	github.com/lib/pq v1.8.0
 	github.com/mitchellh/go-homedir v1.1.0

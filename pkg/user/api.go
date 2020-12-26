@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/luanguimaraesla/freegrow/internal/log"
+	"github.com/luanguimaraesla/freegrow/internal/session"
 	"github.com/luanguimaraesla/freegrow/pkg/gadget"
 	"go.uber.org/zap"
 )
@@ -19,7 +20,7 @@ type response struct {
 }
 
 // GetUser will return a single user by its ID
-func GetUser(w http.ResponseWriter, r *http.Request) {
+func GetUser(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
@@ -34,7 +35,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdateUser update user's detail in the postgres db
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
+func UpdateUser(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	params := mux.Vars(r)
@@ -64,7 +65,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteUser deletes an user from database
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
+func DeleteUser(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
 
 	params := mux.Vars(r)
@@ -92,7 +93,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegisterUserGadget creates an user gadget row in the database
-func RegisterUserGadget(w http.ResponseWriter, r *http.Request) {
+func RegisterUserGadget(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
@@ -124,7 +125,7 @@ func RegisterUserGadget(w http.ResponseWriter, r *http.Request) {
 }
 
 // UnregisterUserGadget creates an user gadget row in the database
-func UnregisterUserGadget(w http.ResponseWriter, r *http.Request) {
+func UnregisterUserGadget(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
@@ -155,7 +156,7 @@ func UnregisterUserGadget(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetUserGadgets returns a list of user gadget in the database
-func GetUserGadgets(w http.ResponseWriter, r *http.Request) {
+func GetUserGadgets(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
 
 	params := mux.Vars(r)
@@ -174,7 +175,7 @@ func GetUserGadgets(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetUserGadget a single gadget of this user in the database
-func GetUserGadget(w http.ResponseWriter, r *http.Request) {
+func GetUserGadget(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	params := mux.Vars(r)
@@ -195,7 +196,7 @@ func GetUserGadget(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdateUserGadget updates gadget's detail in the postgres db
-func UpdateUserGadget(w http.ResponseWriter, r *http.Request) {
+func UpdateUserGadget(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	params := mux.Vars(r)
@@ -259,6 +260,12 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 	if !user.checkPassword(creds.Password) {
 		log.L.Error("unable to login: wrong password")
 		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if err := session.CreateSession(w, user.ID); err != nil {
+		log.L.Error("unable generate session token", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 

@@ -77,3 +77,19 @@ func GetString(key string) (string, error) {
 
 	return redis.String(c.Do("GET", key))
 }
+
+// Renew set a new TTL for a key
+func Renew(key string, duration time.Duration) error {
+	c, err := Connect()
+	if err != nil {
+		return err
+	}
+
+	defer c.Close()
+
+	if _, err := c.Do("EXPIRE", key, fmt.Sprintf("%.0f", duration.Seconds())); err != nil {
+		return err
+	}
+
+	return nil
+}

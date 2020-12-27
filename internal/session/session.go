@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	sessionDuration = 300 * time.Second
+	sessionDuration = 24 * time.Hour
 	cookieName      = "SESSION_TOKEN"
 )
 

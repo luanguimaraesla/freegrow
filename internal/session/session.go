@@ -1,35 +1,28 @@
 package session
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/luanguimaraesla/freegrow/internal/cache"
+	"github.com/luanguimaraesla/freegrow/internal/log"
+	"go.uber.org/zap"
 )
 
 var (
 	sessionDuration = 300 * time.Second
-	cookieName      = "session_token"
+	cookieName      = "SESSION_TOKEN"
 )
 
 // CreateSession creates a new session and stores in the cache
 func CreateSession(w http.ResponseWriter, i interface{}) error {
-	c, err := cache.Connect()
-	if err != nil {
-		return err
-	}
-
-	defer c.Close()
 
 	// Create a new random session token
 	sessionToken := uuid.New().String()
 
-	// Set the token in the cache, along with the user whom it represents
-	// The token has an expiry time of 120 seconds
-	duration := fmt.Sprintf("%.0f", sessionDuration.Seconds())
-	if _, err := c.Do("SETEX", sessionToken, duration, fmt.Sprintf("%", i)); err != nil {
+	if err := cache.Setex(sessionToken, i, sessionDuration); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		return err
 	}
 
@@ -60,28 +53,10 @@ func CheckSession(fn func(string, http.ResponseWriter, *http.Request)) func(http
 
 		sessionToken := cookie.Value
 
-		c, err := cache.Connect()
+		s, err := cache.GetString(sessionToken)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		defer c.Close()
-
-		response, err := c.Do("GET", sessionToken)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		if response == nil {
+			log.L.Error("failed getting SESSION_TOKEN", zap.Error(err))
 			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		s, ok := response.(string)
-		if !ok {
-			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 

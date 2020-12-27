@@ -1,6 +1,9 @@
 package cache
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/gomodule/redigo/redis"
 )
 
@@ -45,4 +48,32 @@ func Ping() error {
 	defer c.Close()
 
 	return err
+}
+
+// Setex sets an entry with TTL
+func Setex(key string, value interface{}, duration time.Duration) error {
+	c, err := Connect()
+	if err != nil {
+		return err
+	}
+
+	defer c.Close()
+
+	if _, err := c.Do("SETEX", key, fmt.Sprintf("%.0f", duration.Seconds()), value); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetString gets an string from cache
+func GetString(key string) (string, error) {
+	c, err := Connect()
+	if err != nil {
+		return "", err
+	}
+
+	defer c.Close()
+
+	return redis.String(c.Do("GET", key))
 }

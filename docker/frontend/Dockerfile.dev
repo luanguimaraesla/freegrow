@@ -1,0 +1,15 @@
+FROM ubuntu:20.04
+
+RUN apt-get update && apt-get install -y \
+    nginx \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY config/nginx/site.conf /etc/nginx/sites-available
+RUN ln -s /etc/nginx/sites-available/site.conf /etc/nginx/sites-enabled
+
+COPY . /app 
+WORKDIR /app
+
+RUN chmod 755 /app/scripts/startup.sh
+
+CMD ["bash","/app/scripts/startup.sh"]

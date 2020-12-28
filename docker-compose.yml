@@ -1,17 +1,26 @@
 version: '3'
 
 services:
-  brain:
+  frontend:
+    image: "luanguimaraesla/freegrow-web:development"
+    build:
+      context: ./web
+      dockerfile: ./docker/frontend/Dockerfile.dev
+    ports:
+      - 8000:8000
+    volumes:
+    - ./web:/app
+  backend:
     image: "luanguimaraesla/freegrow:development"
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: docker/backend/Dockerfile.dev
     command:
     - "brain"
     volumes:
     - .:/app
     ports:
-      - 8000:8000
+      - 8001:8001
     environment:
       FREEGROW_POSTGRES_HOST: postgres
       FREEGROW_POSTGRES_PORT: "5432"

@@ -1,15 +1,11 @@
-FROM ubuntu:20.04
+FROM node:15.5-buster
 
-RUN apt-get update && apt-get install -y \
-    nginx \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY config/nginx/site.conf /etc/nginx/sites-available
-RUN ln -s /etc/nginx/sites-available/site.conf /etc/nginx/sites-enabled
-
-COPY . /app 
 WORKDIR /app
 
-RUN chmod 755 /app/scripts/startup.sh
+ENV PATH /app/node_modules/.bin:$PATH
+COPY app/package.json /app/package.json
 
-CMD ["bash","/app/scripts/startup.sh"]
+RUN npm install
+RUN npm install @vue/cli@4.5.9 -g
+
+CMD ["yarn", "serve"]

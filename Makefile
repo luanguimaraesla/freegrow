@@ -25,7 +25,8 @@ VERSION := $(shell [ ! -z "${TAG}" ] && echo "${TAG}" || echo "${COMMIT}")
 REVISION := $(shell git rev-parse HEAD)
 GITREMOTE := "github.com/luanguimaraesla/freegrow"
 
-DOCKER_IMAGE := "luanguimaraesla/freegrow"
+DOCKER_BACKEND_IMAGE := "luanguimaraesla/freegrow"
+DOCKER_FRONTEND_IMAGE := "luanguimaraesla/freegrow-web"
 
 # Make is verbose in Linux. Make it silent.
 MAKEFLAGS += --silent
@@ -127,10 +128,13 @@ drop:
 .PHONY: build-docker
 build-docker:
 	@echo ">  Building docker"
-	sudo docker build -t $(DOCKER_IMAGE):latest -t $(DOCKER_IMAGE):$(VERSION) .
+	sudo docker build -f docker/backend/Dockerfile -t $(DOCKER_BACKEND_IMAGE):latest -t $(DOCKER_BACKEND_IMAGE):$(VERSION) .
+	sudo docker build -f docker/frontend/Dockerfile -t $(DOCKER_FRONTEND_IMAGE):latest -t $(DOCKER_FRONTEND_IMAGE):$(VERSION) .
 
 .PHONY: release-docker
 release-docker: build-docker
 	@echo ">  Releasing docker"
-	sudo docker push $(DOCKER_IMAGE):latest
-	sudo docker push $(DOCKER_IMAGE):$(VERSION)
+	sudo docker push $(DOCKER_BACKEND_IMAGE):latest
+	sudo docker push $(DOCKER_BACKEND_IMAGE):$(VERSION)
+	sudo docker push $(DOCKER_FRONTEND_IMAGE):latest
+	sudo docker push $(DOCKER_FRONTEND_IMAGE):$(VERSION)

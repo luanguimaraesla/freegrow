@@ -5,29 +5,29 @@ services:
     image: "luanguimaraesla/freegrow-web:development"
     build:
       context: ./web
-      dockerfile: ./docker/frontend/Dockerfile.dev
+      dockerfile: ../docker/frontend/Dockerfile.dev
     ports:
-      - 8000:8000
+      - 8080:8080
     volumes:
-    - ./web:/app
+    - ./web/app:/app
   backend:
     image: "luanguimaraesla/freegrow:development"
     build:
       context: .
-      dockerfile: docker/backend/Dockerfile.dev
+      dockerfile: ./docker/backend/Dockerfile.dev
     command:
     - "brain"
     volumes:
     - .:/app
     ports:
-      - 8001:8001
+      - 8081:8081
     environment:
       FREEGROW_POSTGRES_HOST: postgres
       FREEGROW_POSTGRES_PORT: "5432"
       FREEGROW_POSTGRES_DATABASE: freegrow
       FREEGROW_POSTGRES_USERNAME: freegrow
       FREEGROW_POSTGRES_PASSWORD: freegrow
-      FREEGROW_BIND_ADDRESS: 0.0.0.0:8000
+      FREEGROW_BIND_ADDRESS: 0.0.0.0:8081
       FREEGROW_REDIS_URL: "redis://redis:6379"
     depends_on:
     - postgres

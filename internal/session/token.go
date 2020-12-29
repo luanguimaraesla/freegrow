@@ -86,6 +86,15 @@ func (t *Token) Save() error {
 	return nil
 }
 
+// Delete removes token from cache
+func (t *Token) Delete() error {
+	if err := cache.Delete(t.Uuid); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Check checks if the token is still on the cache
 func (t *Token) Check() (string, error) {
 	id, err := cache.GetString(t.Uuid)

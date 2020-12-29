@@ -78,6 +78,22 @@ func GetString(key string) (string, error) {
 	return redis.String(c.Do("GET", key))
 }
 
+// Delete deletes an item from cache
+func Delete(key string) error {
+	c, err := Connect()
+	if err != nil {
+		return err
+	}
+
+	defer c.Close()
+
+	if _, err := c.Do("DEL", key); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Renew set a new TTL for a key
 func Renew(key string, duration time.Duration) error {
 	c, err := Connect()

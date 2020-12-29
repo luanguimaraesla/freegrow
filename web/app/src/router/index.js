@@ -5,7 +5,7 @@ const routes = [
   {
     path: '/',
     name: 'LandingPage',
-    component: LandingPage 
+    component: LandingPage
   },
   {
     path: '/signin',

@@ -23,9 +23,7 @@ type response struct {
 func GetUser(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
 
-	params := mux.Vars(r)
-
-	user, err := loadUser(params["user_id"])
+	user, err := loadUser(userID)
 	if err != nil {
 		log.L.Fatal("unable to load user", zap.Error(err))
 	}
@@ -37,9 +35,7 @@ func GetUser(userID string, w http.ResponseWriter, r *http.Request) {
 func UpdateUser(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	params := mux.Vars(r)
-
-	user, err := loadUser(params["user_id"])
+	user, err := loadUser(userID)
 	if err != nil {
 		log.L.Fatal("unable to load user", zap.Error(err))
 	}
@@ -67,9 +63,7 @@ func UpdateUser(userID string, w http.ResponseWriter, r *http.Request) {
 func DeleteUser(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
 
-	params := mux.Vars(r)
-
-	id, err := strconv.Atoi(params["user_id"])
+	id, err := strconv.Atoi(userID)
 	if err != nil {
 		log.L.Fatal("unable to parse user_id into int", zap.Error(err))
 	}
@@ -95,9 +89,7 @@ func DeleteUser(userID string, w http.ResponseWriter, r *http.Request) {
 func RegisterUserGadget(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
 
-	params := mux.Vars(r)
-
-	user, err := loadUser(params["user_id"])
+	user, err := loadUser(userID)
 	if err != nil {
 		log.L.Fatal("unable to load user", zap.Error(err))
 	}
@@ -128,7 +120,7 @@ func UnregisterUserGadget(userID string, w http.ResponseWriter, r *http.Request)
 
 	params := mux.Vars(r)
 
-	user, err := loadUser(params["user_id"])
+	user, err := loadUser(userID)
 	if err != nil {
 		log.L.Fatal("unable to load user", zap.Error(err))
 	}
@@ -156,9 +148,7 @@ func UnregisterUserGadget(userID string, w http.ResponseWriter, r *http.Request)
 func GetUserGadgets(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
 
-	params := mux.Vars(r)
-
-	user, err := loadUser(params["user_id"])
+	user, err := loadUser(userID)
 	if err != nil {
 		log.L.Fatal("unable to load user", zap.Error(err))
 	}
@@ -177,7 +167,7 @@ func GetUserGadget(userID string, w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 
-	user, err := loadUser(params["user_id"])
+	user, err := loadUser(userID)
 	if err != nil {
 		log.L.Fatal("unable to load user", zap.Error(err))
 	}
@@ -198,7 +188,7 @@ func UpdateUserGadget(userID string, w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 
-	user, err := loadUser(params["user_id"])
+	user, err := loadUser(userID)
 	if err != nil {
 		log.L.Fatal("unable to load user", zap.Error(err))
 	}
@@ -275,6 +265,19 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		log.L.Error("failed encoding response", zap.Error(err))
 	}
+}
+
+// Signout is used to logout users, invalidating its JWT token
+func Signout(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Context-Type", "application/json")
+
+	res := struct {
+		Message string
+	}{
+		Message: "successfully logged out",
+	}
+
+	json.NewEncoder(w).Encode(res)
 }
 
 // Signup is used to register new users

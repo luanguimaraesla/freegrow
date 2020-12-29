@@ -3,10 +3,28 @@ package brain
 import (
 	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/luanguimaraesla/freegrow/internal/session"
 	"github.com/luanguimaraesla/freegrow/pkg/user"
 	"go.uber.org/zap"
+)
+
+var (
+	originsOk = handlers.AllowedOrigins([]string{"*"})
+	methodsOk = handlers.AllowedMethods(
+		[]string{"GET", "HEAD", "POST", "UPDATE", "DELETE", "PUT", "OPTIONS"},
+	)
+	headersOk = handlers.AllowedHeaders(
+		[]string{
+			"Accept",
+			"Content-Type",
+			"Content-Length",
+			"Accept-Encoding",
+			"X-CSRF-Token",
+			"Authorization",
+		},
+	)
 )
 
 func (b *Brain) Listen(bind string) error {
@@ -30,7 +48,8 @@ func (b *Brain) Listen(bind string) error {
 
 	b.L.With(zap.String("bind", bind)).Info("listening")
 
-	if err := http.ListenAndServe(bind, router); err != nil {
+	r := handlers.CORS(originsOk, headersOk, methodsOk)(router)
+	if err := http.ListenAndServe(bind, r); err != nil {
 		return err
 	}
 

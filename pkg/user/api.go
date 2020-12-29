@@ -22,7 +22,6 @@ type response struct {
 // GetUser will return a single user by its ID
 func GetUser(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	params := mux.Vars(r)
 
@@ -95,7 +94,6 @@ func DeleteUser(userID string, w http.ResponseWriter, r *http.Request) {
 // RegisterUserGadget creates an user gadget row in the database
 func RegisterUserGadget(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	params := mux.Vars(r)
 
@@ -127,7 +125,6 @@ func RegisterUserGadget(userID string, w http.ResponseWriter, r *http.Request) {
 // UnregisterUserGadget creates an user gadget row in the database
 func UnregisterUserGadget(userID string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	params := mux.Vars(r)
 

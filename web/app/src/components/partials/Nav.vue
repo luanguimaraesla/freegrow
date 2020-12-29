@@ -18,20 +18,22 @@
     <div class="navbar-end">
       <div class="navbar-item">
         <div class="buttons">
-          <a class="button is-dark">
-            <strong>Sign In</strong>
-          </a>
+          <router-link to="/signin" class="button is-dark">
+              <strong>Sign In</strong>
+          </router-link>
         </div>
       </div>
     </div>
   </div>
 </nav>
 </template>
+
 <script>
-export default {
+  export default {
     name: 'Nav'
-}
+  }
 </script>
+
 <style lang="scss" scoped>
   nav {
     margin-top: 25px;

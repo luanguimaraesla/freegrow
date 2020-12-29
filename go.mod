@@ -3,6 +3,7 @@ module github.com/luanguimaraesla/freegrow
 go 1.15
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gofrs/flock v0.7.1 // indirect
 	github.com/golang-migrate/migrate/v4 v4.14.1
 	github.com/golangci/golangci-lint v1.24.0

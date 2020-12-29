@@ -260,18 +260,21 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := session.CreateSession(w, user.ID); err != nil {
+	accessToken, refreshToken, err := session.CreateSession(user.ID)
+	if err != nil {
 		log.L.Error("unable generate session token", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	res := response{
-		ID:      user.ID,
-		Message: "user logged in successfully",
-	}
+	res := struct {
+		AccessToken  string
+		RefreshToken string
+	}{accessToken, refreshToken}
 
-	json.NewEncoder(w).Encode(res)
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		log.L.Error("failed encoding response", zap.Error(err))
+	}
 }
 
 // Signup is used to register new users

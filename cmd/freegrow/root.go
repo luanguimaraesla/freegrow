@@ -40,13 +40,17 @@ var (
 )
 
 var defaults = map[string]string{
-	"POSTGRES_USERNAME": "freegrow",
-	"POSTGRES_PASSWORD": "freegrow",
-	"POSTGRES_HOST":     "localhost",
-	"POSTGRES_PORT":     "5432",
-	"POSTGRES_DATABASE": "freegrow",
-	"BIND_ADDRESS":      "127.0.0.1:8000",
-	"REDIS_URL":         "redis://redis:6379",
+	"POSTGRES_USERNAME":        "freegrow",
+	"POSTGRES_PASSWORD":        "freegrow",
+	"POSTGRES_HOST":            "localhost",
+	"POSTGRES_PORT":            "5432",
+	"POSTGRES_DATABASE":        "freegrow",
+	"BIND_ADDRESS":             "127.0.0.1:8000",
+	"REDIS_URL":                "redis://redis:6379",
+	"SESSION_ACCESS_SECRET":    "freegrow",
+	"SESSION_ACCESS_DURATION":  "15m",
+	"SESSION_REFERSH_SECRET":   "freegrow",
+	"SESSION_REFERSH_DURATION": "24h",
 }
 
 // rootCmd represents the base command when called without any subcommands

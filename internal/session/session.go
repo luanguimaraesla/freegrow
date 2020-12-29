@@ -1,65 +1,83 @@
 package session
 
 import (
-	"net/http"
+	"fmt"
 	"time"
-
-	"github.com/google/uuid"
-	"github.com/luanguimaraesla/freegrow/internal/cache"
-	"github.com/luanguimaraesla/freegrow/internal/log"
-	"go.uber.org/zap"
 )
 
 var (
-	sessionDuration = 24 * time.Hour
-	cookieName      = "SESSION_TOKEN"
+	opts *sessionOptions
 )
 
-// CreateSession creates a new session and stores in the cache
-func CreateSession(w http.ResponseWriter, i interface{}) error {
+// sessionOptions represents configurable values for
+// access session management
+type sessionOptions struct {
+	cookieName           string
+	accessSecret         string
+	refreshSecret        string
+	refreshTokenDuration time.Duration
+	accessTokenDuration  time.Duration
+}
 
-	// Create a new random session token
-	sessionToken := uuid.New().String()
+type Session struct {
+	AccessToken  *Token
+	RefreshToken *Token
+}
 
-	if err := cache.Setex(sessionToken, i, sessionDuration); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+// Init defines JWT access secret key and session duration
+func Init(accessSecret, refreshSecret string, accessTokenDuration, refreshTokenDuration time.Duration) {
+	opts = &sessionOptions{
+		cookieName:           "SESSION_TOKEN",
+		accessSecret:         accessSecret,
+		refreshSecret:        refreshSecret,
+		accessTokenDuration:  accessTokenDuration,
+		refreshTokenDuration: refreshTokenDuration,
+	}
+}
+
+// New creates a new session fon a given id
+func New(id interface{}) (*Session, error) {
+	accessToken, err := NewToken(id, opts.accessSecret, opts.accessTokenDuration)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create session access token: %v", err)
+	}
+
+	refreshToken, err := NewToken(id, opts.refreshSecret, opts.refreshTokenDuration)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create session refresh token: %v", err)
+	}
+
+	session := &Session{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+
+	return session, nil
+}
+
+// CreateSession creates a new session and returns the JWT access and refresh token
+func CreateSession(id interface{}) (string, string, error) {
+	session, err := New(id)
+	if err != nil {
+		return "", "", err
+	}
+
+	if err := session.Save(); err != nil {
+		return "", "", err
+	}
+
+	return session.AccessToken.Jwt, session.RefreshToken.Jwt, nil
+}
+
+// Save persists both accessToken and refreshToken in the cache
+func (s *Session) Save() error {
+	if err := s.AccessToken.Save(); err != nil {
 		return err
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:    cookieName,
-		Value:   sessionToken,
-		Expires: time.Now().Add(sessionDuration),
-	})
+	if err := s.RefreshToken.Save(); err != nil {
+		return err
+	}
 
 	return nil
-}
-
-// CheckSession is a decorator that checks session token and passes its
-// value to the decorated router function
-func CheckSession(fn func(string, http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie(cookieName)
-		if err != nil {
-			if err == http.ErrNoCookie {
-				// If the cookie is not set, return an unauthorized status
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
-			// For any other type of error, return a bad request status
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		sessionToken := cookie.Value
-
-		s, err := cache.GetString(sessionToken)
-		if err != nil {
-			log.L.Error("failed getting SESSION_TOKEN", zap.Error(err))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		fn(s, w, r)
-	}
 }

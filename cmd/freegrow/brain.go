@@ -15,10 +15,13 @@
 package main
 
 import (
+	"time"
+
 	_ "github.com/lib/pq"
 	"github.com/luanguimaraesla/freegrow/internal/cache"
 	"github.com/luanguimaraesla/freegrow/internal/database"
 	"github.com/luanguimaraesla/freegrow/internal/log"
+	"github.com/luanguimaraesla/freegrow/internal/session"
 	"github.com/luanguimaraesla/freegrow/pkg/brain"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -43,6 +46,7 @@ func startBrain(cmd *cobra.Command, args []string) {
 
 	initDB(cmd, args)
 	initCache(cmd, args)
+	initSession(cmd, args)
 	initServer(cmd, args)
 
 	log.L.Info("finished")
@@ -91,4 +95,23 @@ func initServer(cmd *cobra.Command, args []string) {
 	if err := b.Listen(bind); err != nil {
 		log.L.Fatal("unable to start freegrow brain server", zap.Error(err))
 	}
+}
+
+func initSession(cmd *cobra.Command, args []string) {
+	accessSecret := getEnvOrDefault("SESSION_ACCESS_SECRET")
+	rawAccessDuration := getEnvOrDefault("SESSION_ACCESS_DURATION")
+	refreshSecret := getEnvOrDefault("SESSION_ACCESS_SECRET")
+	rawRefreshDuration := getEnvOrDefault("SESSION_ACCESS_DURATION")
+
+	accessDuration, err := time.ParseDuration(rawAccessDuration)
+	if err != nil {
+		log.L.Fatal("unable to parse session access duration", zap.Error(err))
+	}
+
+	refreshDuration, err := time.ParseDuration(rawRefreshDuration)
+	if err != nil {
+		log.L.Fatal("unable to parse session access duration", zap.Error(err))
+	}
+
+	session.Init(accessSecret, refreshSecret, accessDuration, refreshDuration)
 }

@@ -1,5 +1,5 @@
 <template>
-<div class="home">
+<div class="landing-page">
   <section class="hero is-dark">
     <div class="hero-body">
       <div class="container">
@@ -9,20 +9,19 @@
         <h2 class="subtitle">
           Open source automation platform for DIY greenhouses
         </h2>
+        <div class="button-block">
+          <button class="button is-xl is-dark">Sign Up</button>
+        </div>
       </div>
     </div>
   </section>
-  <GadgetList />
 </div>
 </template>
 
 <script>
-import GadgetList from '@/components/GadgetList'
-
 export default {
-  name: 'Home',
+  name: 'LandingPage',
   components: {
-    GadgetList
   }
 }
 </script>
